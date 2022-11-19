@@ -47,6 +47,7 @@ class App(TkinterDnD.Tk):
 
     WIDTH = 860
     HEIGHT = 520
+    PAGE = "Embed"
 
     def __init__(self):
         super().__init__()
@@ -63,6 +64,30 @@ class App(TkinterDnD.Tk):
             self.logo_height = int(self.logo_width * aspect_ratio)
             self.logo = logo.resize(
                 (self.logo_width, self.logo_height))
+
+        # Run App
+        self.active_file = None
+        try:
+            self.load_settings()
+            self.embed_mode_name = self.embed_mode_names[0]
+            self.embed_mode = self.embed_modes[f"{self.embed_mode_name}"]
+        except Exception as e:
+            logging.critical(
+                "Settings invalid. Ensure at least 1 embed mode exists.")
+
+        with run_flag_lock:
+            self.page = "Options"
+            self.start_run = False
+        self.create_widgets()
+        self.after(DELAY, self.update_app)
+        self.mainloop()
+
+    def create_widgets(self):
+        self.create_gui_shape()
+        self.create_left_pane()
+        self.create_right_pane()
+
+    def create_gui_shape(self):
 
         # Two columns.
         self.grid_columnconfigure(1, weight=1)
@@ -93,26 +118,8 @@ class App(TkinterDnD.Tk):
         self.frame_screen.rowconfigure(1, minsize=80)
         self.frame_screen.columnconfigure((0, 1, 2), weight=1)
 
-        # Run App
-        self.active_file = None
-        try:
-            self.load_settings()
-            self.embed_mode_name = self.embed_mode_names[0]
-            self.embed_mode = self.embed_modes[f"{self.embed_mode_name}"]
-        except Exception as e:
-            logging.critical(
-                "Settings invalid. Ensure at least 1 embed mode exists.")
+    def create_left_pane(self):
 
-        self.create_widgets()
-        with run_flag_lock:
-            self.page = "Embed"
-            self.start_run = False
-        self.after(DELAY, self.update_loop)
-        self.mainloop()
-
-    def create_widgets(self):
-
-        # Left pane
         # Title text.
         self.title_label = ctk.CTkLabel(master=self.frame_left,
                                         text="Barcode Embedder",
@@ -160,6 +167,17 @@ class App(TkinterDnD.Tk):
                                                  "Roboto Bold", -16),
                                              command=self.options_button_handler)
         self.settings_button.grid(row=6, column=0, pady=(0, 20), padx=20)
+
+    def create_right_pane(self):
+        if self.page == "Embed":
+            self.embed_page()
+        elif self.page == "Options":
+            self.options_page()
+
+    def options_page(self):
+        return
+
+    def embed_page(self):
 
         # Right pane
         # Screen frame title.
@@ -274,8 +292,8 @@ class App(TkinterDnD.Tk):
 
     def select_file(self, event=None):
 
-        # Selects file by drag event.
         try:
+            # Selects file by drag event.
             if event:
                 filename = event.data
 
@@ -292,54 +310,63 @@ class App(TkinterDnD.Tk):
                 "Failed to load PDF. Ensure settings.json is configured correctly.")
 
     # Main update loop.
-    def update_loop(self):
+    def update_app(self):
 
         with run_flag_lock:
+            if self.page == "Embed":
+                self.update_embed()
+            elif self.page == "Options":
+                self.update_options()
 
-            # If an error has been thrown.
-            if Embed.error:
-                if not Embed.error_handled:
-                    self.error_handler()
-                Embed.error_handled = True
-                self.load_settings()
+        self.after(DELAY, self.update_app)
 
-            # No active file selected.
-            if not self.active_file:
-                self.load_settings()
-                self.progressbar.grid_remove()
-                self.embed_button.configure(state="disabled")
+    # Updates the embed page.
+    def update_embed(self):
+        # If an error has been thrown.
+        if Embed.error:
+            if not Embed.error_handled:
+                self.error_handler()
+            Embed.error_handled = True
+            self.load_settings()
 
-            # Active file selected but run not pressed.
-            elif not Embed.running and not Embed.end_run:
-                pass
+        # No active file selected.
+        if not self.active_file:
+            self.load_settings()
+            self.progressbar.grid_remove()
+            self.embed_button.configure(state="disabled")
 
-            # Embed button pressed, starting run.
-            elif self.start_run:
-                self.progressbar.grid()
-                self.progressbar.set(0.0)
-                self.embed_button.configure(state="disabled")
-                self.select_file_label.configure(state="disabled")
-                self.embed_button.configure(text="Embedding...")
-                self.start_run = False
+        # Active file selected but run not pressed.
+        elif not Embed.running and not Embed.end_run:
+            pass
 
-            # Embed running.
-            elif Embed.running:
-                self.progresslabel.configure(text=Embed.status_text)
-                self.progressbar.set(Embed.page_i/Embed.page_i_total)
+        # Embed button pressed, starting run.
+        elif self.start_run:
+            self.progressbar.grid()
+            self.progressbar.set(0.0)
+            self.embed_button.configure(state="disabled")
+            self.select_file_label.configure(state="disabled")
+            self.embed_button.configure(text="Embedding...")
+            self.start_run = False
 
-            # Embed finished.
-            else:
-                self.progressbar.grid_remove()
-                self.progresslabel.configure(text="Success")
-                self.embed_button.configure(state="normal")
-                self.select_file_label.configure(state="normal")
-                self.embed_button.configure(text="Embed")
-                self.active_file = None
-                self.select_file_label.configure(
-                    text="Drag PDF here.\nOr click to select PDF.")
-                Embed.end_run = False
+        # Embed running.
+        elif Embed.running:
+            self.progresslabel.configure(text=Embed.status_text)
+            self.progressbar.set(Embed.page_i/Embed.page_i_total)
 
-        self.after(DELAY, self.update_loop)
+        # Embed finished.
+        else:
+            self.progressbar.grid_remove()
+            self.progresslabel.configure(text="Success")
+            self.embed_button.configure(state="normal")
+            self.select_file_label.configure(state="normal")
+            self.embed_button.configure(text="Embed")
+            self.active_file = None
+            self.select_file_label.configure(
+                text="Drag PDF here.\nOr click to select PDF.")
+            Embed.end_run = False
+
+    def update_options(self):
+        return
 
     def load_settings(self):
         try:
@@ -382,16 +409,14 @@ class App(TkinterDnD.Tk):
 
     # Executes when options button pressed.
     def options_button_handler(self):
-
-        try:
-            logging.info(
-                f"Opening 'settings.json'")
-            os.system("notepad.exe settings.json")
-
-        except Exception as e:
-            logging.error(e, exc_info=True)
-            logging.error(
-                f"Failed to open 'settings.json'.")
+        if self.page == "Options":
+            print("changing to embed")
+            self.page = "Embed"
+            self.embed_page()
+        elif self.page == "Embed":
+            print("changing to options")
+            self.page = "Options"
+            self.options_page()
 
     # Executes when logs button pressed.
     def logs_button_handler(self):
