@@ -19,7 +19,7 @@ import json
 DELAY = 50
 run_flag_lock = threading.Lock()
 
-logging.basicConfig(filename="log.log",
+logging.basicConfig(filename="./resources/log.log",
                     encoding="utf-8",
                     format='%(levelname)s %(asctime)s  %(message)s',
                     level=logging.DEBUG)
@@ -237,10 +237,11 @@ class OptionsPage(Page):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.create_top_frame()
+        self.frame_top.grid_columnconfigure((0, 1, 2), weight=1)
         self.create_widgets()
 
     def create_widgets(self):
-        # Screen frame title.
+        # top frame.
         self.options_label = ctk.CTkLabel(master=self.frame_top,
                                           text="Options",
                                           text_color=DARK_GREY,
@@ -248,6 +249,50 @@ class OptionsPage(Page):
         self.options_label.grid(
             row=0, column=0, columnspan=3, pady=(15, 15), padx=20)
 
+        self.theme_switch = ctk.CTkSwitch(master=self.frame_top,
+                                          text="Light Mode",
+                                          height=25,
+                                          width=50,
+                                          text_font=("Roboto", -16),
+                                          button_color=DARK_GREY,
+                                          button_hover_color=DARK_BLUE,
+                                          progress_color=LIGHT_BLUE)
+        self.theme_switch.grid(row=1, column=0, columnspan=1,
+                               pady=0, padx=20, sticky="w")
+
+        self.open_on_completion_check = ctk.CTkCheckBox(master=self.frame_top,
+                                                        text="Open when Complete",
+                                                        text_font=(
+                                                            "Roboto", -16),
+                                                        hover_color=DARK_BLUE,
+                                                        fg_color=LIGHT_BLUE)
+        self.open_on_completion_check.grid(
+            row=2, column=0, pady=0, padx=20, sticky="we")
+
+        self.open_with_entry = ctk.CTkEntry(master=self.frame_top,
+                                            placeholder_text="Open With",
+                                            placeholder_text_color=DARK_GREY,
+                                            fg_color=WHITE,
+                                            height=35,
+                                            border_width=0,
+                                            corner_radius=6,
+                                            text_font=(
+                                                "Roboto Bold", -16))
+        self.open_with_entry.grid(row=2, rowspan=1, column=1, columnspan=2,
+                                  pady=0, padx=(4, 20), sticky="we")
+
+        self.sound_on_completion_check = ctk.CTkCheckBox(master=self.frame_top,
+                                                         text="Notify when Complete",
+                                                         text_font=(
+                                                             "Roboto", -16),
+                                                         hover_color=DARK_BLUE,
+                                                         fg_color=LIGHT_BLUE)
+        self.sound_on_completion_check.grid(
+            row=3, column=0, pady=0, padx=20, sticky="we")
+
+        self.output_directory_entry =
+
+        # Under top frame.
         self.cancel_button = ctk.CTkButton(master=self,
                                            text="Cancel",
                                            text_color=DARK_GREY,
@@ -342,18 +387,24 @@ class App(TkinterDnD.Tk):
         self.mainloop()
 
     def update_app(self):
-        self.load_options()
-
+        # update things here
         self.after(DELAY, self.update_app)
 
     def load_options(self):
         # Open settings.json file, read contents to embed_modes and options.
-        with open("settings.json") as settings_file:
-            self.settings = json.load(settings_file)
-            self.embed_modes = self.settings["modes"]
-            self.options = self.settings["options"]
-        self.embed_mode_names = [key for key in self.embed_modes.keys()]
+        for _ in range(2):
+            try:
+                with open("./resources/settings.json") as settings_file:
+                    self.settings = json.load(settings_file)
+                    self.embed_modes = self.settings["modes"]
+                    self.options = self.settings["options"]
+                # self.check_settings_file()     write this method
+                break
+            # If file not found, write default settings file.
+            except FileNotFoundError:
+                self.reset_settings_file()
 
+        self.embed_mode_names = [key for key in self.embed_modes.keys()]
         if len(self.embed_mode_names) == 0:
             pass
             # display error
@@ -385,7 +436,6 @@ class App(TkinterDnD.Tk):
         self.frame_left.grid(row=0, column=0, padx=0, pady=0, sticky="nswe")
 
         self.embed_page.show()
-        self.embed_page.progresslabel.configure(text="hello")
 
     def create_navigation_handlers(self):
         self.frame_left.options_button.configure(
@@ -397,11 +447,11 @@ class App(TkinterDnD.Tk):
         self.options_page.save_button.configure(
             command=self.options_save_button_handler)
         self.logs_page.back_button.configure(
-            command=self.logs_back_button_handler
-        )
+            command=self.logs_back_button_handler)
 
     def options_button_handler(self):
         if self.current_page != "options":
+            self.load_options()
             self.options_page.show()
             self.previous_page = self.current_page
             self.current_page = "options"
@@ -411,6 +461,8 @@ class App(TkinterDnD.Tk):
             self.frame_left.logs_button.configure(fg_color=None)
             return
 
+        # Returning from options page
+        self.load_options()
         self.embed_page.show()
         self.current_page = "embed"
         self.previous_page = "options"
@@ -437,6 +489,7 @@ class App(TkinterDnD.Tk):
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
+            self.load_options()
             self.embed_page.show()
 
     def options_save_button_handler(self):
@@ -446,6 +499,7 @@ class App(TkinterDnD.Tk):
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
+            self.load_options()
             self.embed_page.show()
 
     def logs_back_button_handler(self):
@@ -454,6 +508,11 @@ class App(TkinterDnD.Tk):
             self.current_page = "embed"
             self.frame_left.logs_button.configure(fg_color=None)
             self.embed_page.show()
+
+    def reset_settings_file(self):
+        with open("./resources/settings_default.json", "r") as infile:
+            with open("./resources/settings.json", "w") as outfile:
+                outfile.write(json.dumps(json.load(infile), indent=4))
 
 
 if __name__ == "__main__":
