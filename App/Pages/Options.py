@@ -11,6 +11,8 @@ class OptionsPage(Page):
         self.frame_top.grid_columnconfigure((0, 1, 2), weight=1)
         self.frame_top.grid_rowconfigure((1, 2, 3, 4, 5), minsize=20)
         self.create_widgets()
+        Options.load_options(self)
+        print(self.options)
 
     def create_widgets(self):
         # top frame.

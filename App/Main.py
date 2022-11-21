@@ -50,7 +50,7 @@ class App(TkinterDnD.Tk):
         Options.load_options(self)
         Options.get_colors(self, theme=self.options["theme"])
 
-        self.iconbitmap("App/icon.ico")
+        self.iconbitmap("App/resources/icon.ico")
         self.title("Barcode Embedder")
         self.geometry(
             f"{self.options[f'window_default_size'][0]}x" +
@@ -59,7 +59,7 @@ class App(TkinterDnD.Tk):
                      self.options["window_min_size"][1])
         self.maxsize(self.options["window_max_size"]
                      [0], self.options["window_max_size"][1])
-        # self.configure(bg=self.WHITE)
+        self.configure(bg=self.WHITE)
 
         self.create_gui()
         self.create_navigation_handlers()
@@ -117,13 +117,6 @@ class App(TkinterDnD.Tk):
             self.frame_left.logs_button.configure(state="disabled")
             self.frame_left.logs_button.configure(fg_color=None)
             return
-
-        # Returning from options page
-        Options.load_options(self)
-        self.embed_page.show()
-        self.current_page = "embed"
-        self.previous_page = "options"
-        self.frame_left.options_button.configure(fg_color=None)
 
     def logs_button_handler(self):
         if self.current_page != "logs":

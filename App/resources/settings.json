@@ -35,7 +35,7 @@
         "open_initialdir": ".\\",
         "open_on_completion": true,
         "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-        "theme": "LIGHT",
+        "theme": "DARK",
         "window_default_size": [
             860,
             520

@@ -9,6 +9,7 @@ class LeftFrame(Page):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.read_logo()
+        self.corner_radius = 0
 
         self.grid_rowconfigure((0, 1), minsize=20)
         self.grid_rowconfigure(2, minsize=self.logo_height)
@@ -18,7 +19,7 @@ class LeftFrame(Page):
         self.create_widgets()
 
     def read_logo(self):
-        with Image.open("App/icon.png").convert("RGBA") as logo:
+        with Image.open("App/resources/icon.png").convert("RGBA") as logo:
             self.image_aspect_ratio = logo.height / logo.width
             self.logo_width = 100
             self.logo_height = int(self.logo_width * self.image_aspect_ratio)
