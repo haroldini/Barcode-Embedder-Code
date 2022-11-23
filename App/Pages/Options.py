@@ -74,23 +74,43 @@ class OptionsPage(Page):
         self.notify_when_done_field.grid(
             row=3, column=0, pady=4, padx=20, sticky="we")
 
-        self.def_open_dir_label = ctk.CTkLabel(master=self.frame_top,
-                                               text="Default Input Folder",
-                                               text_color=self.DARK_GREY,
-                                               text_font=("Roboto", -16))
+        self.output_dir_label = ctk.CTkLabel(master=self.frame_top,
+                                             text="Output Folder",
+                                             anchor="w",
+                                             text_color=self.DARK_GREY,
+                                             text_font=("Roboto", -16))
 
-        self.def_open_dir_label.grid(
-            row=5, column=0, pady=4, padx=20, sticky="w")
+        self.output_dir_label.grid(
+            row=4, column=0, pady=(18, 4), padx=20, sticky="w")
 
-        self.def_open_dir_field = ctk.CTkEntry(master=self.frame_top,
-                                               fg_color=self.WHITE,
-                                               height=35,
-                                               border_width=0,
-                                               corner_radius=6,
-                                               text_font=(
-                                                   "Roboto", -16))
-        self.def_open_dir_field.grid(row=5, rowspan=1, column=1, columnspan=2,
-                                     pady=4, padx=(0, 20), sticky="we")
+        self.output_dir_field = ctk.CTkEntry(master=self.frame_top,
+                                             fg_color=self.WHITE,
+                                             height=35,
+                                             border_width=0,
+                                             corner_radius=6,
+                                             text_font=(
+                                                 "Roboto", -16))
+        self.output_dir_field.grid(row=4, rowspan=1, column=1, columnspan=2,
+                                   pady=(18, 4), padx=(0, 20), sticky="we")
+
+        self.input_dir_label = ctk.CTkLabel(master=self.frame_top,
+                                            text="Input Folder",
+                                            anchor="w",
+                                            text_color=self.DARK_GREY,
+                                            text_font=("Roboto", -16))
+
+        self.input_dir_label.grid(
+            row=5, column=0, pady=(4, 18), padx=20, sticky="w")
+
+        self.input_dir_field = ctk.CTkEntry(master=self.frame_top,
+                                            fg_color=self.WHITE,
+                                            height=35,
+                                            border_width=0,
+                                            corner_radius=6,
+                                            text_font=(
+                                                "Roboto", -16))
+        self.input_dir_field.grid(row=5, rowspan=1, column=1, columnspan=2,
+                                  pady=(4, 18), padx=(0, 20), sticky="we")
 
         self.def_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
                                                  fg_color=self.WHITE,
@@ -161,7 +181,7 @@ class OptionsPage(Page):
                                                      "Roboto", -16))
 
         self.max_win_size_x_field.grid(
-            row=9, column=1, pady=4, padx=0, sticky="we")
+            row=8, column=1, pady=4, padx=0, sticky="we")
 
         self.max_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
                                                  fg_color=self.WHITE,
@@ -172,7 +192,7 @@ class OptionsPage(Page):
                                                      "Roboto", -16))
 
         self.max_win_size_y_field.grid(
-            row=9, column=2, pady=4, padx=20, sticky="we")
+            row=8, column=2, pady=4, padx=20, sticky="we")
 
         self.max_win_size_label = ctk.CTkLabel(master=self.frame_top,
                                                text="Maximum Window Size",
@@ -180,7 +200,7 @@ class OptionsPage(Page):
                                                text_font=("Roboto", -16))
 
         self.max_win_size_label.grid(
-            row=9, column=0, pady=4, padx=20, sticky="w")
+            row=8, column=0, pady=4, padx=20, sticky="we")
 
         # Under top frame.
         self.cancel_button = ctk.CTkButton(master=self,
@@ -220,10 +240,11 @@ class OptionsPage(Page):
             self.open_with_label.grid_remove()
 
     def fill_fields(self):
+        self.load_settings()
         check_fields = [
             "theme", "open_when_done", "notify_when_done"]
         text_fields = [
-            "def_open_dir", "open_with"]
+            "input_dir", "output_dir", "open_with"]
         numeric_fields = [
             "def_win_size_x", "def_win_size_y",
             "min_win_size_x", "min_win_size_y",
@@ -232,8 +253,12 @@ class OptionsPage(Page):
         for field in text_fields+numeric_fields:
             self.__getattribute__(f"{field}_field").delete(
                 0, ctk.END)
-            self.__getattribute__(f"{field}_field").insert(
-                0, self.options[field])
+            if self.options[field] is None:
+                self.__getattribute__(f"{field}_field").insert(
+                    0, "None")
+            else:
+                self.__getattribute__(f"{field}_field").insert(
+                    0, self.options[field])
 
         for field in check_fields:
             if self.options[field]:

@@ -24,7 +24,7 @@ from Pages.Embed import EmbedPage
 from Pages.Log import LogsPage
 from Pages.LeftFrame import LeftFrame
 
-DELAY = 50
+DELAY = 500
 run_flag_lock = threading.Lock()
 
 logging.basicConfig(filename="App/resources/log.log",
@@ -54,30 +54,33 @@ class App(TkinterDnD.Tk):
         self.iconbitmap("App/resources/icon.ico")
         self.title("Barcode Embedder")
         self.bind_all("<Button>", self.reset_focus)
-        self.geometry(f"{self.options[f'def_win_size_x']}x" +
-                      f"{self.options[f'def_win_size_y']}")
+
+        # Set window size.
+        self.geometry(f"{self.options[f'def_win_size_x'] if self.options[f'def_win_size_x'] is not None else 880}x" +
+                      f"{self.options[f'def_win_size_y'] if self.options[f'def_win_size_y'] is not None else 520}")
         self.configure_app()
 
         self.current_page = "embed"
         self.previous_page = "embed"
+        self.error = None
 
         self.create_pages()
-        self.embed_page.show()
+        self.embed_page.lift()
         self.create_navigation_handlers()
         self.after(DELAY, self.update_app)
 
         self.mainloop()
 
     def update_app(self):
-        # update things here
+        print(self.error)
         self.after(DELAY, self.update_app)
 
     def configure_app(self):
         self.configure(bg=self.WHITE)
-        self.minsize(self.options["min_win_size_x"],
-                     self.options["min_win_size_y"])
-        self.maxsize(self.options["max_win_size_x"],
-                     self.options["max_win_size_y"])
+        self.minsize(self.options["min_win_size_x"] if self.options["min_win_size_x"] is not None else 0,
+                     self.options["min_win_size_y"] if self.options["min_win_size_y"] is not None else 0)
+        self.maxsize(self.options["max_win_size_x"] if self.options["max_win_size_x"] is not None else 0,
+                     self.options["max_win_size_y"] if self.options["max_win_size_y"] is not None else 0)
 
     def create_pages(self):
 
@@ -113,8 +116,9 @@ class App(TkinterDnD.Tk):
 
     def options_button_handler(self):
         if self.current_page != "options":
+            Options.load_settings(self)
             self.options_page.fill_fields()
-            self.options_page.show()
+            self.options_page.lift()
             self.previous_page = self.current_page
             self.current_page = "options"
             self.frame_left.options_button.configure(fg_color=self.LIGHT_BLUE)
@@ -124,14 +128,14 @@ class App(TkinterDnD.Tk):
 
     def logs_button_handler(self):
         if self.current_page != "logs":
-            self.logs_page.show()
+            self.logs_page.lift()
             self.previous_page = self.current_page
             self.current_page = "logs"
             self.frame_left.logs_button.configure(fg_color=self.LIGHT_BLUE)
             self.frame_left.options_button.configure(fg_color=None)
             return
 
-        self.embed_page.show()
+        self.embed_page.lift()
         self.current_page = "embed"
         self.previous_page = "logs"
         self.frame_left.logs_button.configure(fg_color=None)
@@ -140,53 +144,50 @@ class App(TkinterDnD.Tk):
         if self.current_page == "options":
             self.previous_page = self.current_page
             self.current_page = "embed"
+            self.error = None
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
-            self.embed_page.show()
+            self.embed_page.lift()
 
     def options_save_button_handler(self):
         if self.current_page == "options":
 
-            # Create new settings dictionary.
+            # Create new settings dict from options form.
+            self.error = None
             with open("App/resources/settings.json", "r") as settings_file:
                 settings = json.load(settings_file)
-                prev_settings = deepcopy(settings)
-                option_keys = ["theme", "def_open_dir", "open_with",
-                               "open_when_done", "notify_when_done",
-                               "def_win_size_x", "def_win_size_y",
-                               "min_win_size_x", "min_win_size_y",
-                               "max_win_size_x", "max_win_size_y"]
-                for option_key in option_keys:
-                    settings["options"][option_key] = self.options_page.__getattribute__(
-                        f"{option_key}_field").get()
+            prev_settings = deepcopy(settings)
+            settings = Options.create_new_settings(self, settings)
+            # ensure both directories are valid directories somehow.
 
             # Save new settings dictionary.
-            with open("App/resources/settings.json", "w") as settings_file:
-                settings_file.write(json.dumps(settings, indent=4))
+            if self.error == None:
+                with open("App/resources/settings.json", "w") as settings_file:
+                    settings_file.write(json.dumps(settings, indent=4))
 
-            # Reload settings and colours.
-            Options.load_settings(self)
-            if prev_settings["options"]["theme"] != settings["options"]["theme"]:
-                Options.get_colors(self, theme=self.options["theme"])
-                self.create_pages()
-                self.create_navigation_handlers()
-            self.configure_app()
-            self.frame_left.options_button.configure(fg_color=None)
-            self.frame_left.options_button.configure(state="normal")
-            self.frame_left.logs_button.configure(state="normal")
+                # Reload settings and colours.
+                Options.load_settings(self)
+                if prev_settings["options"]["theme"] != self.settings["options"]["theme"]:
+                    Options.get_colors(self, theme=self.options["theme"])
+                    self.create_pages()
+                    self.create_navigation_handlers()
+                self.configure_app()
+                self.frame_left.options_button.configure(fg_color=None)
+                self.frame_left.options_button.configure(state="normal")
+                self.frame_left.logs_button.configure(state="normal")
 
-            # Navigate to embed page.
-            self.previous_page = self.current_page
-            self.current_page = "embed"
-            self.embed_page.show()
+                # Navigate to embed page.
+                self.previous_page = self.current_page
+                self.current_page = "embed"
+                self.embed_page.lift()
 
     def logs_back_button_handler(self):
         if self.current_page == "logs":
             self.previous_page = self.current_page
             self.current_page = "embed"
             self.frame_left.logs_button.configure(fg_color=None)
-            self.embed_page.show()
+            self.embed_page.lift()
 
     def reset_focus(self, event):
         event.widget.focus_set()

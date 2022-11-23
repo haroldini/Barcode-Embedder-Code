@@ -23,6 +23,7 @@
     },
     "options": {
         "def_open_dir": ".\\",
+        "output_dir": ".\\output",
         "open_when_done": 1,
         "notify_when_done": 1,
         "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
