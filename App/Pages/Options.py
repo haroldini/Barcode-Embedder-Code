@@ -75,7 +75,7 @@ class OptionsPage(Page):
             row=3, column=0, pady=4, padx=20, sticky="we")
 
         self.def_open_dir_label = ctk.CTkLabel(master=self.frame_top,
-                                               text="Open File Directory",
+                                               text="Default Input Folder",
                                                text_color=self.DARK_GREY,
                                                text_font=("Roboto", -16))
 

@@ -33,14 +33,14 @@
     },
     "options": {
         "def_open_dir": ".\\",
-        "open_when_done": 0,
-        "notify_when_done": 0,
+        "open_when_done": 1,
+        "notify_when_done": 1,
         "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
         "theme": 1,
         "def_win_size_x": "860",
         "def_win_size_y": "520",
-        "min_win_size_x": "620",
-        "min_win_size_y": "520",
+        "min_win_size_x": "640",
+        "min_win_size_y": "440",
         "max_win_size_x": "1280",
         "max_win_size_y": "860"
     }

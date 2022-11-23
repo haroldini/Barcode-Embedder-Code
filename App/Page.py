@@ -8,7 +8,7 @@ class Page(ctk.CTkFrame):
         super().__init__(*args, **kwargs)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure((0, 1), weight=1)
-        Options.load_options(self)
+        Options.load_settings(self)
         Options.get_colors(self, theme=self.options["theme"])
 
     def create_top_frame(self):

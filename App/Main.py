@@ -48,9 +48,9 @@ class App(TkinterDnD.Tk):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        Options.load_options(self)
-        Options.get_colors(self, theme=self.options["theme"])
 
+        Options.load_settings(self)
+        Options.get_colors(self, theme=self.options["theme"])
         self.iconbitmap("App/resources/icon.ico")
         self.title("Barcode Embedder")
         self.bind_all("<Button>", self.reset_focus)
@@ -73,17 +73,16 @@ class App(TkinterDnD.Tk):
         self.after(DELAY, self.update_app)
 
     def configure_app(self):
+        self.configure(bg=self.WHITE)
         self.minsize(self.options["min_win_size_x"],
                      self.options["min_win_size_y"])
         self.maxsize(self.options["max_win_size_x"],
                      self.options["max_win_size_y"])
-        self.configure(bg=self.WHITE)
 
     def create_pages(self):
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
-
         self.options_page = OptionsPage(self)
         self.embed_page = EmbedPage(self)
         self.logs_page = LogsPage(self)
@@ -167,7 +166,7 @@ class App(TkinterDnD.Tk):
                 settings_file.write(json.dumps(settings, indent=4))
 
             # Reload settings and colours.
-            Options.load_options(self)
+            Options.load_settings(self)
             if prev_settings["options"]["theme"] != settings["options"]["theme"]:
                 Options.get_colors(self, theme=self.options["theme"])
                 self.create_pages()
@@ -188,11 +187,6 @@ class App(TkinterDnD.Tk):
             self.current_page = "embed"
             self.frame_left.logs_button.configure(fg_color=None)
             self.embed_page.show()
-
-    def reset_settings_file(self):
-        with open("App/resources/settings_default.json", "r+") as infile:
-            with open("App/resources/settings.json", "w") as outfile:
-                outfile.write(json.dumps(json.load(infile), indent=4))
 
     def reset_focus(self, event):
         event.widget.focus_set()
