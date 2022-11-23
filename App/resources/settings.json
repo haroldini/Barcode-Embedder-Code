@@ -32,21 +32,16 @@
         }
     },
     "options": {
-        "open_initialdir": ".\\",
-        "open_on_completion": true,
+        "def_open_dir": ".\\",
+        "open_when_done": 0,
+        "notify_when_done": 0,
         "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
-        "theme": "DARK",
-        "window_default_size": [
-            860,
-            520
-        ],
-        "window_min_size": [
-            640,
-            440
-        ],
-        "window_max_size": [
-            1280,
-            860
-        ]
+        "theme": 1,
+        "def_win_size_x": "860",
+        "def_win_size_y": "520",
+        "min_win_size_x": "620",
+        "min_win_size_y": "520",
+        "max_win_size_x": "1280",
+        "max_win_size_y": "860"
     }
 }

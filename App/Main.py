@@ -15,6 +15,7 @@ import logging
 import os
 import subprocess
 import json
+from copy import deepcopy
 
 from Page import Page
 from Options import Options
@@ -52,16 +53,16 @@ class App(TkinterDnD.Tk):
 
         self.iconbitmap("App/resources/icon.ico")
         self.title("Barcode Embedder")
-        self.geometry(
-            f"{self.options[f'window_default_size'][0]}x" +
-            f"{self.options[f'window_default_size'][1]}")
-        self.minsize(self.options["window_min_size"][0],
-                     self.options["window_min_size"][1])
-        self.maxsize(self.options["window_max_size"]
-                     [0], self.options["window_max_size"][1])
-        self.configure(bg=self.WHITE)
+        self.bind_all("<Button>", self.reset_focus)
+        self.geometry(f"{self.options[f'def_win_size_x']}x" +
+                      f"{self.options[f'def_win_size_y']}")
+        self.configure_app()
 
-        self.create_gui()
+        self.current_page = "embed"
+        self.previous_page = "embed"
+
+        self.create_pages()
+        self.embed_page.show()
         self.create_navigation_handlers()
         self.after(DELAY, self.update_app)
 
@@ -71,10 +72,14 @@ class App(TkinterDnD.Tk):
         # update things here
         self.after(DELAY, self.update_app)
 
-    def create_gui(self):
+    def configure_app(self):
+        self.minsize(self.options["min_win_size_x"],
+                     self.options["min_win_size_y"])
+        self.maxsize(self.options["max_win_size_x"],
+                     self.options["max_win_size_y"])
+        self.configure(bg=self.WHITE)
 
-        self.current_page = "embed"
-        self.previous_page = "embed"
+    def create_pages(self):
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
@@ -92,7 +97,8 @@ class App(TkinterDnD.Tk):
                             pady=20, sticky="nsew")
         self.frame_left.grid(row=0, column=0, padx=0, pady=0, sticky="nswe")
 
-        self.embed_page.show()
+        self.pages = [self.options_page, self.embed_page,
+                      self.logs_page, self.frame_left]
 
     def create_navigation_handlers(self):
         self.frame_left.options_button.configure(
@@ -108,7 +114,7 @@ class App(TkinterDnD.Tk):
 
     def options_button_handler(self):
         if self.current_page != "options":
-            Options.load_options(self)
+            self.options_page.fill_fields()
             self.options_page.show()
             self.previous_page = self.current_page
             self.current_page = "options"
@@ -116,7 +122,6 @@ class App(TkinterDnD.Tk):
             self.frame_left.options_button.configure(state="disabled")
             self.frame_left.logs_button.configure(state="disabled")
             self.frame_left.logs_button.configure(fg_color=None)
-            return
 
     def logs_button_handler(self):
         if self.current_page != "logs":
@@ -139,17 +144,42 @@ class App(TkinterDnD.Tk):
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
-            Options.load_options(self)
             self.embed_page.show()
 
     def options_save_button_handler(self):
         if self.current_page == "options":
-            self.previous_page = self.current_page
-            self.current_page = "embed"
+
+            # Create new settings dictionary.
+            with open("App/resources/settings.json", "r") as settings_file:
+                settings = json.load(settings_file)
+                prev_settings = deepcopy(settings)
+                option_keys = ["theme", "def_open_dir", "open_with",
+                               "open_when_done", "notify_when_done",
+                               "def_win_size_x", "def_win_size_y",
+                               "min_win_size_x", "min_win_size_y",
+                               "max_win_size_x", "max_win_size_y"]
+                for option_key in option_keys:
+                    settings["options"][option_key] = self.options_page.__getattribute__(
+                        f"{option_key}_field").get()
+
+            # Save new settings dictionary.
+            with open("App/resources/settings.json", "w") as settings_file:
+                settings_file.write(json.dumps(settings, indent=4))
+
+            # Reload settings and colours.
+            Options.load_options(self)
+            if prev_settings["options"]["theme"] != settings["options"]["theme"]:
+                Options.get_colors(self, theme=self.options["theme"])
+                self.create_pages()
+                self.create_navigation_handlers()
+            self.configure_app()
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
-            Options.load_options(self)
+
+            # Navigate to embed page.
+            self.previous_page = self.current_page
+            self.current_page = "embed"
             self.embed_page.show()
 
     def logs_back_button_handler(self):
@@ -160,9 +190,12 @@ class App(TkinterDnD.Tk):
             self.embed_page.show()
 
     def reset_settings_file(self):
-        with open("./resources/settings_default.json", "r") as infile:
-            with open("./resources/settings.json", "w") as outfile:
+        with open("App/resources/settings_default.json", "r+") as infile:
+            with open("App/resources/settings.json", "w") as outfile:
                 outfile.write(json.dumps(json.load(infile), indent=4))
+
+    def reset_focus(self, event):
+        event.widget.focus_set()
 
 
 if __name__ == "__main__":

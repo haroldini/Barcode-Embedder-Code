@@ -1,7 +1,6 @@
 import customtkinter as ctk
 
 from Page import Page
-from Options import Options
 
 
 class OptionsPage(Page):
@@ -11,8 +10,7 @@ class OptionsPage(Page):
         self.frame_top.grid_columnconfigure((0, 1, 2), weight=1)
         self.frame_top.grid_rowconfigure((1, 2, 3, 4, 5), minsize=20)
         self.create_widgets()
-        Options.load_options(self)
-        print(self.options)
+        self.fill_fields()
 
     def create_widgets(self):
         # top frame.
@@ -23,92 +21,97 @@ class OptionsPage(Page):
         self.options_label.grid(
             row=0, column=0, columnspan=3, pady=(15, 15), padx=20)
 
-        self.dark_theme_check = ctk.CTkCheckBox(master=self.frame_top,
-                                                text="Dark Mode",
-                                                text_color=self.DARK_GREY,
-                                                text_font=(
-                                                    "Roboto", -16),
-                                                hover_color=self.DARK_BLUE,
-                                                fg_color=self.LIGHT_BLUE)
-        self.dark_theme_check.grid(
+        self.theme_field = ctk.CTkCheckBox(master=self.frame_top,
+                                           text="Dark Mode",
+                                           text_color=self.DARK_GREY,
+                                           text_font=(
+                                               "Roboto", -16),
+                                           hover_color=self.DARK_BLUE,
+                                           fg_color=self.LIGHT_BLUE)
+        self.theme_field.grid(
             row=1, column=0, pady=4, padx=20, sticky="we")
 
-        self.open_when_done_check = ctk.CTkCheckBox(master=self.frame_top,
+        self.open_with_label = ctk.CTkLabel(master=self.frame_top,
+                                            text="Open With",
+                                            text_color=self.DARK_GREY,
+                                            text_font=("Roboto", -16))
+
+        self.open_with_label.grid(
+            row=1, column=1, columnspan=2, pady=0, padx=20, sticky="we")
+
+        self.open_when_done_field = ctk.CTkCheckBox(master=self.frame_top,
                                                     text="Open when Done",
                                                     text_color=self.DARK_GREY,
                                                     text_font=(
                                                         "Roboto", -16),
                                                     hover_color=self.DARK_BLUE,
-                                                    fg_color=self.LIGHT_BLUE)
-        self.open_when_done_check.grid(
+                                                    fg_color=self.LIGHT_BLUE,
+                                                    command=self.toggle_open_with_field)
+        self.open_when_done_field.grid(
             row=2, column=0, pady=4, padx=20, sticky="we")
 
-        self.open_with_entry = ctk.CTkEntry(master=self.frame_top,
-                                            placeholder_text="Open With",
-                                            placeholder_text_color=self.DARK_GREY,
+        self.open_with_field = ctk.CTkEntry(master=self.frame_top,
                                             fg_color=self.WHITE,
                                             height=35,
                                             border_width=0,
                                             corner_radius=6,
                                             text_font=(
                                                 "Roboto", -16))
-        self.open_with_entry.grid(row=2, rowspan=1, column=1, columnspan=2,
+        self.open_with_field.grid(row=2, rowspan=1, column=1, columnspan=2,
                                   pady=4, padx=(0, 20), sticky="we")
 
-        self.notify_when_done_check = ctk.CTkCheckBox(master=self.frame_top,
+        if not self.options["open_when_done"]:
+            self.open_with_field.grid_remove()
+            self.open_with_label.grid_remove()
+
+        self.notify_when_done_field = ctk.CTkCheckBox(master=self.frame_top,
                                                       text="Notify when Done",
                                                       text_color=self.DARK_GREY,
                                                       text_font=(
                                                           "Roboto", -16),
                                                       hover_color=self.DARK_BLUE,
                                                       fg_color=self.LIGHT_BLUE)
-        self.notify_when_done_check.grid(
+        self.notify_when_done_field.grid(
             row=3, column=0, pady=4, padx=20, sticky="we")
 
         self.def_open_dir_label = ctk.CTkLabel(master=self.frame_top,
-                                               text="Initial Open File Directory",
+                                               text="Open File Directory",
                                                text_color=self.DARK_GREY,
                                                text_font=("Roboto", -16))
 
         self.def_open_dir_label.grid(
             row=5, column=0, pady=4, padx=20, sticky="w")
 
-        self.def_open_dir_entry = ctk.CTkEntry(master=self.frame_top,
-                                               placeholder_text="Default directory",
-                                               placeholder_text_color=self.DARK_GREY,
+        self.def_open_dir_field = ctk.CTkEntry(master=self.frame_top,
                                                fg_color=self.WHITE,
                                                height=35,
                                                border_width=0,
                                                corner_radius=6,
                                                text_font=(
                                                    "Roboto", -16))
-        self.def_open_dir_entry.grid(row=5, rowspan=1, column=1, columnspan=2,
+        self.def_open_dir_field.grid(row=5, rowspan=1, column=1, columnspan=2,
                                      pady=4, padx=(0, 20), sticky="we")
 
-        self.def_win_size_x = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Width",
-                                           placeholder_text_color=self.DARK_GREY,
-                                           fg_color=self.WHITE,
-                                           height=35,
-                                           border_width=0,
-                                           corner_radius=6,
-                                           text_font=(
-                                               "Roboto", -16))
+        self.def_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
+                                                 fg_color=self.WHITE,
+                                                 height=35,
+                                                 border_width=0,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16))
 
-        self.def_win_size_x.grid(
+        self.def_win_size_x_field.grid(
             row=6, column=1, pady=4, padx=0, sticky="we")
 
-        self.def_win_size_y = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Height",
-                                           placeholder_text_color=self.DARK_GREY,
-                                           fg_color=self.WHITE,
-                                           height=35,
-                                           border_width=0,
-                                           corner_radius=6,
-                                           text_font=(
-                                               "Roboto", -16))
+        self.def_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
+                                                 fg_color=self.WHITE,
+                                                 height=35,
+                                                 border_width=0,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16))
 
-        self.def_win_size_y.grid(
+        self.def_win_size_y_field.grid(
             row=6, column=2, pady=4, padx=20, sticky="we")
 
         self.def_win_size_label = ctk.CTkLabel(master=self.frame_top,
@@ -119,30 +122,26 @@ class OptionsPage(Page):
         self.def_win_size_label.grid(
             row=6, column=0, pady=4, padx=20, sticky="w")
 
-        self.min_win_size_x = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Width",
-                                           placeholder_text_color=self.DARK_GREY,
-                                           fg_color=self.WHITE,
-                                           height=35,
-                                           border_width=0,
-                                           corner_radius=6,
-                                           text_font=(
-                                               "Roboto", -16))
+        self.min_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
+                                                 fg_color=self.WHITE,
+                                                 height=35,
+                                                 border_width=0,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16))
 
-        self.min_win_size_x.grid(
+        self.min_win_size_x_field.grid(
             row=7, column=1, pady=4, padx=0, sticky="we")
 
-        self.min_win_size_y = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Height",
-                                           placeholder_text_color=self.DARK_GREY,
-                                           fg_color=self.WHITE,
-                                           height=35,
-                                           border_width=0,
-                                           corner_radius=6,
-                                           text_font=(
-                                               "Roboto", -16))
+        self.min_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
+                                                 fg_color=self.WHITE,
+                                                 height=35,
+                                                 border_width=0,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16))
 
-        self.min_win_size_y.grid(
+        self.min_win_size_y_field.grid(
             row=7, column=2, pady=4, padx=20, sticky="we")
 
         self.min_win_size_label = ctk.CTkLabel(master=self.frame_top,
@@ -153,34 +152,30 @@ class OptionsPage(Page):
         self.min_win_size_label.grid(
             row=7, column=0, pady=4, padx=20, sticky="w")
 
-        self.max_win_size_x = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Width",
-                                           placeholder_text_color=self.DARK_GREY,
-                                           fg_color=self.WHITE,
-                                           height=35,
-                                           border_width=0,
-                                           corner_radius=6,
-                                           text_font=(
-                                               "Roboto", -16))
+        self.max_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
+                                                 fg_color=self.WHITE,
+                                                 height=35,
+                                                 border_width=0,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16))
 
-        self.max_win_size_x.grid(
+        self.max_win_size_x_field.grid(
             row=9, column=1, pady=4, padx=0, sticky="we")
 
-        self.max_win_size_y = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Height",
-                                           placeholder_text_color=self.DARK_GREY,
-                                           fg_color=self.WHITE,
-                                           height=35,
-                                           border_width=0,
-                                           corner_radius=6,
-                                           text_font=(
-                                               "Roboto", -16))
+        self.max_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
+                                                 fg_color=self.WHITE,
+                                                 height=35,
+                                                 border_width=0,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16))
 
-        self.max_win_size_y.grid(
+        self.max_win_size_y_field.grid(
             row=9, column=2, pady=4, padx=20, sticky="we")
 
         self.max_win_size_label = ctk.CTkLabel(master=self.frame_top,
-                                               text="Minimum Window Size",
+                                               text="Maximum Window Size",
                                                text_color=self.DARK_GREY,
                                                text_font=("Roboto", -16))
 
@@ -213,3 +208,35 @@ class OptionsPage(Page):
                                               "Roboto Bold", -16))
         self.save_button.grid(row=4, rowspan=2, column=1,
                               pady=(0, 20), padx=(20, 20), sticky="swe")
+
+    def toggle_open_with_field(self):
+        if self.open_when_done_field.get():
+            self.open_with_field.grid(row=2, rowspan=1, column=1, columnspan=2,
+                                      pady=4, padx=(0, 20), sticky="we")
+            self.open_with_label.grid(row=1, column=1, columnspan=2,
+                                      pady=0, padx=20, sticky="we")
+        else:
+            self.open_with_field.grid_remove()
+            self.open_with_label.grid_remove()
+
+    def fill_fields(self):
+        check_fields = [
+            "theme", "open_when_done", "notify_when_done"]
+        text_fields = [
+            "def_open_dir", "open_with"]
+        numeric_fields = [
+            "def_win_size_x", "def_win_size_y",
+            "min_win_size_x", "min_win_size_y",
+            "max_win_size_x", "max_win_size_y"]
+
+        for field in text_fields+numeric_fields:
+            self.__getattribute__(f"{field}_field").delete(
+                0, ctk.END)
+            self.__getattribute__(f"{field}_field").insert(
+                0, self.options[field])
+
+        for field in check_fields:
+            if self.options[field]:
+                self.__getattribute__(f"{field}_field").select()
+            else:
+                self.__getattribute__(f"{field}_field").deselect()

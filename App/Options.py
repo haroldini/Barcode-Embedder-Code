@@ -8,16 +8,16 @@ class Options():
         self.load_options()
         self.get_colors()
 
-    def get_colors(self, theme="LIGHT"):
+    def get_colors(self, theme=0):
         ctk.set_default_color_theme("blue")
-        if theme == "LIGHT":
+        if theme == 0:
             ctk.set_appearance_mode("Light")
             self.DARK_GREY = "#40403f"
             self.LIGHT_BLUE = "#35c2d9"
             self.DARK_BLUE = "#329dae"
             self.WHITE = "#e3e3e3"
             self.BG_COLOR = '#d1d5d8'
-        elif theme == "DARK":
+        elif theme == 1:
             ctk.set_appearance_mode("Dark")
             self.DARK_GREY = "#e3e3e3"
             self.LIGHT_BLUE = "#329dae"
