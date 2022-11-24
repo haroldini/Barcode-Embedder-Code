@@ -86,8 +86,10 @@ class Options():
             "start_page": int,
             "skip_pages": list,
             "barcode_type": str,
-            "barcode_size": list,
-            "barcode_location": list
+            "barcode_size_x": int,
+            "barcode_size_y": int,
+            "barcode_location_x": int,
+            "barcode_location_y": int,
         }
         Checker(settings_schema, soft=True).validate(settings)
         Checker(options_schema, soft=True).validate(settings["options"])

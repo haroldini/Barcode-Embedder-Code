@@ -93,3 +93,7 @@ class EmbedPage(Page):
                                               "Roboto Bold", -16))
         self.embed_button.grid(row=4, rowspan=2, column=1,
                                pady=(0, 20), padx=(20, 20), sticky="swe")
+
+        self.embed_mode_button.configure(
+            values=list(self.settings["modes"].keys()))
+        self.embed_mode_button.text_label["text"] = "Select Document Preset"

@@ -68,6 +68,7 @@ class OptionsPage(Page):
 
         self.open_with_field = ctk.CTkButton(master=self.frame_top,
                                              fg_color=self.WHITE,
+                                             hover_color=self.LIGHT_BLUE,
                                              height=35,
                                              border_width=0,
                                              corner_radius=6,
@@ -103,6 +104,7 @@ class OptionsPage(Page):
 
         self.output_dir_field = ctk.CTkButton(master=self.frame_top,
                                               fg_color=self.WHITE,
+                                              hover_color=self.LIGHT_BLUE,
                                               height=35,
                                               border_width=0,
                                               corner_radius=6,
@@ -123,6 +125,7 @@ class OptionsPage(Page):
 
         self.input_dir_field = ctk.CTkButton(master=self.frame_top,
                                              fg_color=self.WHITE,
+                                             hover_color=self.LIGHT_BLUE,
                                              height=35,
                                              border_width=0,
                                              corner_radius=6,
@@ -134,6 +137,7 @@ class OptionsPage(Page):
                                   pady=(4, 18), padx=(0, 20), sticky="we")
 
         self.def_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
+                                                 placeholder_text="px",
                                                  fg_color=self.WHITE,
                                                  height=35,
                                                  border_width=0,
@@ -145,6 +149,7 @@ class OptionsPage(Page):
             row=6, column=1, pady=4, padx=0, sticky="we")
 
         self.def_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
+                                                 placeholder_text="px",
                                                  fg_color=self.WHITE,
                                                  height=35,
                                                  border_width=0,
@@ -165,6 +170,7 @@ class OptionsPage(Page):
             row=6, column=0, pady=4, padx=20, sticky="w")
 
         self.min_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
+                                                 placeholder_text="Blank to ignore",
                                                  fg_color=self.WHITE,
                                                  height=35,
                                                  border_width=0,
@@ -176,6 +182,7 @@ class OptionsPage(Page):
             row=7, column=1, pady=4, padx=0, sticky="we")
 
         self.min_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
+                                                 placeholder_text="Blank to ignore",
                                                  fg_color=self.WHITE,
                                                  height=35,
                                                  border_width=0,
@@ -196,6 +203,7 @@ class OptionsPage(Page):
             row=7, column=0, pady=4, padx=20, sticky="w")
 
         self.max_win_size_x_field = ctk.CTkEntry(master=self.frame_top,
+                                                 placeholder_text="Blank to ignore",
                                                  fg_color=self.WHITE,
                                                  height=35,
                                                  border_width=0,
@@ -207,6 +215,7 @@ class OptionsPage(Page):
             row=8, column=1, pady=4, padx=0, sticky="we")
 
         self.max_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
+                                                 placeholder_text="Blank to ignore",
                                                  fg_color=self.WHITE,
                                                  height=35,
                                                  border_width=0,
@@ -224,7 +233,7 @@ class OptionsPage(Page):
                                                text_font=("Roboto", -16))
 
         self.max_win_size_label.grid(
-            row=8, column=0, pady=4, padx=20, sticky="we")
+            row=8, column=0, pady=(4, 0), padx=20, sticky="we")
 
         # Under top frame.
         self.back_button = ctk.CTkButton(master=self,

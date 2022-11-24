@@ -6,14 +6,10 @@
             "start_page": 1,
             "skip_pages": [],
             "barcode_type": "Code128",
-            "barcode_size": [
-                200,
-                60
-            ],
-            "barcode_location": [
-                375,
-                585
-            ]
+            "barcode_size_x": 200,
+            "barcode_size_y": 60,
+            "barcode_location_x": 375,
+            "barcode_location_y": 585
         },
         "Etsy Invoice": {
             "orderID_start": "Order #",
@@ -21,19 +17,15 @@
             "start_page": 1,
             "skip_pages": [],
             "barcode_type": "Code128",
-            "barcode_size": [
-                200,
-                60
-            ],
-            "barcode_location": [
-                375,
-                585
-            ]
+            "barcode_size_x": 200,
+            "barcode_size_y": 60,
+            "barcode_location_x": 375,
+            "barcode_location_y": 585
         }
     },
     "options": {
         "input_dir": ".\\",
-        "output_dir": "C:/Users/Harry/Documents/Output",
+        "output_dir": ".\\output",
         "open_when_done": 1,
         "notify_when_done": 1,
         "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",

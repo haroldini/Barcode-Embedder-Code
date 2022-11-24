@@ -166,6 +166,9 @@ class App(TkinterDnD.Tk):
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
+            self.embed_page.embed_mode_button.configure(
+                values=list(self.settings["modes"].keys()))
+            self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
             self.embed_page.lift()
 
     def options_save_button_handler(self):
@@ -194,6 +197,9 @@ class App(TkinterDnD.Tk):
                 self.frame_left.options_button.configure(fg_color=None)
                 self.frame_left.options_button.configure(state="normal")
                 self.frame_left.logs_button.configure(state="normal")
+                self.embed_page.embed_mode_button.configure(
+                    values=list(self.settings["modes"].keys()))
+                self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
 
                 # Navigate to embed page.
                 self.previous_page = self.current_page
@@ -208,8 +214,9 @@ class App(TkinterDnD.Tk):
         self.options_page.lift()
 
     def edit_mode_save_button_handler(self):
-        self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
-        self.options_page.lift()
+        if self.current_page == "options":
+            self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
+            self.options_page.lift()
 
     def logs_back_button_handler(self):
         if self.current_page == "logs":

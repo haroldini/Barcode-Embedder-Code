@@ -7,8 +7,10 @@
             "skip_pages": [],
 
             "barcode_type": "Code128",
-            "barcode_size": [200, 60],
-            "barcode_location": [375, 585]
+            "barcode_size_x": 200,
+            "barcode_size_y": 60,
+            "barcode_location_x": 375,
+            "barcode_location_y": 585
         },
         "Etsy Invoice": {
             "orderID_start": "Order #",
@@ -17,8 +19,10 @@
             "skip_pages": [],
             
             "barcode_type": "Code128",
-            "barcode_size": [200, 60],
-            "barcode_location": [375, 585]
+            "barcode_size_x": 200,
+            "barcode_size_y": 60,
+            "barcode_location_x": 375,
+            "barcode_location_y": 585
        	}
     },
     "options": {
