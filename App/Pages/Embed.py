@@ -28,6 +28,7 @@ class EmbedPage(Page):
 
         # Screen frame content.
         self.select_file_label = ctk.CTkButton(master=self.frame_top,
+                                               cursor="hand2",
                                                text="Drag PDF here.\nOr click to select PDF.",
                                                text_color=self.DARK_GREY,
                                                fg_color=self.WHITE,
@@ -80,6 +81,7 @@ class EmbedPage(Page):
         self.progressbar.configure(progress_color=self.DARK_GREY)
 
         self.embed_button = ctk.CTkButton(master=self,
+                                          cursor="hand2",
                                           text="Embed",
                                           text_color=self.DARK_GREY,
                                           fg_color=self.LIGHT_BLUE,

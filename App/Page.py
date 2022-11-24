@@ -57,7 +57,6 @@ class Page(ctk.CTkFrame):
 
     def onCanvasConfigure(self, e):
         if not e.height < self.frame_top.winfo_reqheight():
-            print(e.height, self.frame_top.winfo_reqheight())
             self.scrollbar.grid_remove()
         else:
             self.scrollbar.grid()

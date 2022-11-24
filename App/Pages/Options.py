@@ -7,8 +7,10 @@ from Page import Page
 class OptionsPage(Page):
     def __init__(self, name="Options", *args, **kwargs):
         super().__init__(name="Options", *args, **kwargs)
+
         self.create_top_frame()
-        self.frame_top.grid_columnconfigure((0, 1, 2), weight=1)
+        self.frame_top.grid_columnconfigure(0, minsize=80)
+        self.frame_top.grid_columnconfigure((1, 2), weight=1)
         self.frame_top.grid_rowconfigure(
             (0, 1, 2, 3, 4, 5, 6, 7, 8, 9), minsize=20)
         self.create_title("Options")
@@ -17,6 +19,23 @@ class OptionsPage(Page):
         self.fill_fields()
 
     def create_widgets(self):
+
+        self.edit_mode_field = ctk.CTkOptionMenu(master=self.frame_top,
+
+                                                 text_color=self.DARK_GREY,
+                                                 dropdown_text_color=self.DARK_GREY,
+                                                 fg_color=self.WHITE,
+                                                 button_color=self.LIGHT_BLUE,
+                                                 button_hover_color=self.DARK_BLUE,
+                                                 dropdown_hover_color=self.LIGHT_BLUE,
+                                                 height=35,
+                                                 corner_radius=6,
+                                                 text_font=(
+                                                     "Roboto", -16),
+                                                 dropdown_text_font=(
+                                                     "Roboto", -14))
+        self.edit_mode_field.grid(
+            row=0, column=0, columnspan=3, pady=(20, 18), padx=(20, 20), sticky="we")
 
         self.theme_field = ctk.CTkCheckBox(master=self.frame_top,
                                            text="Dark Mode",
@@ -208,20 +227,22 @@ class OptionsPage(Page):
             row=8, column=0, pady=4, padx=20, sticky="we")
 
         # Under top frame.
-        self.cancel_button = ctk.CTkButton(master=self,
-                                           text="Cancel",
-                                           text_color=self.DARK_GREY,
-                                           fg_color=self.LIGHT_BLUE,
-                                           hover_color=self.DARK_BLUE,
-                                           height=35,
-                                           width=150,
-                                           corner_radius=20,
-                                           text_font=(
-                                               "Roboto Bold", -16))
-        self.cancel_button.grid(row=4, rowspan=2, column=0,
-                                pady=(20, 20), padx=(20, 20), sticky="swe")
+        self.back_button = ctk.CTkButton(master=self,
+                                         cursor="hand2",
+                                         text="Back",
+                                         text_color=self.DARK_GREY,
+                                         fg_color=self.LIGHT_BLUE,
+                                         hover_color=self.DARK_BLUE,
+                                         height=35,
+                                         width=150,
+                                         corner_radius=20,
+                                         text_font=(
+                                             "Roboto Bold", -16))
+        self.back_button.grid(row=4, rowspan=2, column=0,
+                              pady=(20, 20), padx=(20, 20), sticky="swe")
 
         self.save_button = ctk.CTkButton(master=self,
+                                         cursor="hand2",
                                          text="Save & Return",
                                          text_color=self.DARK_GREY,
                                          fg_color=self.LIGHT_BLUE,
@@ -276,6 +297,10 @@ class OptionsPage(Page):
             else:
                 self.__getattribute__(f"{field}_field").deselect()
 
+        self.edit_mode_field.configure(
+            values=list(self.settings["modes"].keys())+["Add New"])
+        self.edit_mode_field.text_label["text"] = "Edit Document Preset"
+
     def select_file(self, type):
         if type == "open_with":
             directory = tk.filedialog.askopenfilename(
@@ -288,7 +313,7 @@ class OptionsPage(Page):
                 title=f"Select an '{type}'."
             )
 
-        if directory is not "":
+        if directory != "":
             self.__getattribute__(f"{type}_field").configure(
                 text=directory)
         print(directory)

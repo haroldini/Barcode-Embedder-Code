@@ -22,6 +22,7 @@ from Options import Options
 from Pages.Options import OptionsPage
 from Pages.Embed import EmbedPage
 from Pages.Log import LogsPage
+from Pages.ModeEdit import ModeEditPage
 from Pages.LeftFrame import LeftFrame
 
 DELAY = 500
@@ -87,6 +88,7 @@ class App(TkinterDnD.Tk):
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
         self.options_page = OptionsPage(self)
+        self.mode_edit_page = ModeEditPage(self)
         self.embed_page = EmbedPage(self)
         self.logs_page = LogsPage(self)
         self.frame_left = LeftFrame(self)
@@ -95,12 +97,14 @@ class App(TkinterDnD.Tk):
                              rowspan=3, padx=20, pady=20, sticky="nsew")
         self.options_page.grid(row=0, column=1, padx=20,
                                pady=20, sticky="nsew")
+        self.mode_edit_page.grid(row=0, column=1, sticky="nsew",
+                                 padx=20, pady=20)
         self.logs_page.grid(row=0, column=1, padx=20,
                             pady=20, sticky="nsew")
         self.frame_left.grid(row=0, column=0, padx=0, pady=0, sticky="nswe")
 
         self.pages = [self.options_page, self.embed_page,
-                      self.logs_page]
+                      self.logs_page, self.mode_edit_page]
 
         # Make scrollable regions of the pages change size with window resize.
         for page in self.pages:
@@ -115,12 +119,18 @@ class App(TkinterDnD.Tk):
             command=self.options_button_handler)
         self.frame_left.logs_button.configure(
             command=self.logs_button_handler)
-        self.options_page.cancel_button.configure(
-            command=self.options_cancel_button_handler)
+        self.options_page.back_button.configure(
+            command=self.options_back_button_handler)
         self.options_page.save_button.configure(
             command=self.options_save_button_handler)
         self.logs_page.back_button.configure(
             command=self.logs_back_button_handler)
+        self.options_page.edit_mode_field.configure(
+            command=self.edit_mode_button_handler)
+        self.mode_edit_page.back_button.configure(
+            command=self.edit_mode_back_button_handler)
+        self.mode_edit_page.save_button.configure(
+            command=self.edit_mode_save_button_handler)
 
     def options_button_handler(self):
         if self.current_page != "options":
@@ -148,7 +158,7 @@ class App(TkinterDnD.Tk):
         self.previous_page = "logs"
         self.frame_left.logs_button.configure(fg_color=None)
 
-    def options_cancel_button_handler(self):
+    def options_back_button_handler(self):
         if self.current_page == "options":
             self.previous_page = self.current_page
             self.current_page = "embed"
@@ -189,6 +199,17 @@ class App(TkinterDnD.Tk):
                 self.previous_page = self.current_page
                 self.current_page = "embed"
                 self.embed_page.lift()
+
+    def edit_mode_button_handler(self, mode):
+        self.mode_edit_page.show(mode)
+
+    def edit_mode_back_button_handler(self):
+        self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
+        self.options_page.lift()
+
+    def edit_mode_save_button_handler(self):
+        self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
+        self.options_page.lift()
 
     def logs_back_button_handler(self):
         if self.current_page == "logs":

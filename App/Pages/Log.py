@@ -14,6 +14,7 @@ class LogsPage(Page):
     def create_widgets(self):
 
         self.filler_button = ctk.CTkButton(master=self,
+                                           cursor="hand2",
                                            text="Cancel",
                                            text_color=self.DARK_GREY,
                                            fg_color=self.LIGHT_BLUE,
@@ -27,6 +28,7 @@ class LogsPage(Page):
                                 pady=(20, 20), padx=(20, 20), sticky="swe")
 
         self.back_button = ctk.CTkButton(master=self,
+                                         cursor="hand2",
                                          text="Back",
                                          text_color=self.DARK_GREY,
                                          fg_color=self.LIGHT_BLUE,
