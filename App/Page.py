@@ -42,7 +42,7 @@ class Page(ctk.CTkFrame):
         self.canvas_scroll = ctk.CTkCanvas(  # BG_COLOR
             self.master_frame, bd=0, bg=self.BG_COLOR, highlightthickness=0)
         self.canvas_scroll.grid(
-            row=0, column=0, sticky=tk.N+tk.S+tk.E+tk.W, padx=(20, 0), pady=0)
+            row=0, column=0, sticky="nsew", padx=(20, 0), pady=0)
 
         self.canvas_scroll.columnconfigure(0, weight=1)
         self.canvas_scroll.columnconfigure(1, minsize=20)
@@ -52,14 +52,27 @@ class Page(ctk.CTkFrame):
             self.canvas_scroll, corner_radius=6, fg_color=self.LIGHT_GREY)
         self.canvas_scroll.create_window(
             0, 0, window=self.frame_top, anchor="nw", tags=self.name)
-
-        self.frame_top.rowconfigure((1, 2, 3, 4, 5, 6, 7), minsize=20)
-        self.frame_top.rowconfigure(0, minsize=80)
-
-    def onCanvasConfigure(self, e):
-        print(self.name)
         self.canvas_scroll.itemconfig(
             self.name, width=self.canvas_scroll.winfo_width())
+
+    def onCanvasConfigure(self, e):
+        if not e.height < self.frame_top.winfo_reqheight():
+            print(e.height, self.frame_top.winfo_reqheight())
+            self.scrollbar.grid_remove()
+        else:
+            self.scrollbar.grid()
+
+        self.canvas_scroll.itemconfig(
+            self.name, width=self.canvas_scroll.winfo_width())
+
+    def _bound_to_mousewheel(self, event):
+        self.canvas_scroll.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _unbound_to_mousewheel(self, event):
+        self.canvas_scroll.unbind_all("<MouseWheel>")
+
+    def _on_mousewheel(self, event):
+        self.canvas_scroll.yview_scroll(int(-1*(event.delta/120)), "units")
 
     def load_settings(self):
         Options.load_settings(self)

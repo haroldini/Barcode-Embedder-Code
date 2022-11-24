@@ -104,6 +104,8 @@ class App(TkinterDnD.Tk):
 
         # Make scrollable regions of the pages change size with window resize.
         for page in self.pages:
+            page.frame_top.bind('<Enter>', page._bound_to_mousewheel)
+            page.frame_top.bind('<Leave>', page._unbound_to_mousewheel)
             page.canvas_scroll.bind("<Configure>", page.onCanvasConfigure)
             page.canvas_scroll.configure(
                 scrollregion=page.canvas_scroll.bbox('all'))

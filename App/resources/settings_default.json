@@ -22,7 +22,7 @@
        	}
     },
     "options": {
-        "def_open_dir": ".\\",
+        "input_dir": ".\\",
         "output_dir": ".\\output",
         "open_when_done": 1,
         "notify_when_done": 1,
@@ -30,9 +30,9 @@
         "theme": 1,
         "def_win_size_x": 860,
         "def_win_size_y": 520,
-        "min_win_size_x": 640,
-        "min_win_size_y": 440,
-        "max_win_size_x": 1280,
-        "max_win_size_y": 860
+        "min_win_size_x": null,
+        "min_win_size_y": null,
+        "max_win_size_x": null,
+        "max_win_size_y": null
     }
 }

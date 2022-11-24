@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import tkinter as tk
 
 from Page import Page
 
@@ -46,13 +47,15 @@ class OptionsPage(Page):
         self.open_when_done_field.grid(
             row=2, column=0, pady=4, padx=20, sticky="we")
 
-        self.open_with_field = ctk.CTkEntry(master=self.frame_top,
-                                            fg_color=self.WHITE,
-                                            height=35,
-                                            border_width=0,
-                                            corner_radius=6,
-                                            text_font=(
-                                                "Roboto", -16))
+        self.open_with_field = ctk.CTkButton(master=self.frame_top,
+                                             fg_color=self.WHITE,
+                                             height=35,
+                                             border_width=0,
+                                             corner_radius=6,
+                                             text_font=(
+                                                 "Roboto", -16),
+                                             command=lambda: self.select_file(type="open_with"))
+        self.open_with_field.text_label.configure(anchor="e")
         self.open_with_field.grid(row=2, rowspan=1, column=1, columnspan=2,
                                   pady=4, padx=(0, 20), sticky="we")
 
@@ -79,13 +82,15 @@ class OptionsPage(Page):
         self.output_dir_label.grid(
             row=4, column=0, pady=(18, 4), padx=20, sticky="w")
 
-        self.output_dir_field = ctk.CTkEntry(master=self.frame_top,
-                                             fg_color=self.WHITE,
-                                             height=35,
-                                             border_width=0,
-                                             corner_radius=6,
-                                             text_font=(
-                                                 "Roboto", -16))
+        self.output_dir_field = ctk.CTkButton(master=self.frame_top,
+                                              fg_color=self.WHITE,
+                                              height=35,
+                                              border_width=0,
+                                              corner_radius=6,
+                                              text_font=(
+                                                  "Roboto", -16),
+                                              command=lambda: self.select_file(type="output_dir"))
+        self.output_dir_field.text_label.configure(anchor="e")
         self.output_dir_field.grid(row=4, rowspan=1, column=1, columnspan=2,
                                    pady=(18, 4), padx=(0, 20), sticky="we")
 
@@ -94,17 +99,18 @@ class OptionsPage(Page):
                                             anchor="w",
                                             text_color=self.DARK_GREY,
                                             text_font=("Roboto", -16))
-
         self.input_dir_label.grid(
             row=5, column=0, pady=(4, 18), padx=20, sticky="w")
 
-        self.input_dir_field = ctk.CTkEntry(master=self.frame_top,
-                                            fg_color=self.WHITE,
-                                            height=35,
-                                            border_width=0,
-                                            corner_radius=6,
-                                            text_font=(
-                                                "Roboto", -16))
+        self.input_dir_field = ctk.CTkButton(master=self.frame_top,
+                                             fg_color=self.WHITE,
+                                             height=35,
+                                             border_width=0,
+                                             corner_radius=6,
+                                             text_font=(
+                                                 "Roboto", -16),
+                                             command=lambda: self.select_file(type="input_dir"))
+        self.input_dir_field.text_label.configure(anchor="e")
         self.input_dir_field.grid(row=5, rowspan=1, column=1, columnspan=2,
                                   pady=(4, 18), padx=(0, 20), sticky="we")
 
@@ -133,6 +139,7 @@ class OptionsPage(Page):
         self.def_win_size_label = ctk.CTkLabel(master=self.frame_top,
                                                text="Default Window Size",
                                                text_color=self.DARK_GREY,
+                                               anchor="w",
                                                text_font=("Roboto", -16))
 
         self.def_win_size_label.grid(
@@ -163,6 +170,7 @@ class OptionsPage(Page):
         self.min_win_size_label = ctk.CTkLabel(master=self.frame_top,
                                                text="Minimum Window Size",
                                                text_color=self.DARK_GREY,
+                                               anchor="w",
                                                text_font=("Roboto", -16))
 
         self.min_win_size_label.grid(
@@ -193,6 +201,7 @@ class OptionsPage(Page):
         self.max_win_size_label = ctk.CTkLabel(master=self.frame_top,
                                                text="Maximum Window Size",
                                                text_color=self.DARK_GREY,
+                                               anchor="w",
                                                text_font=("Roboto", -16))
 
         self.max_win_size_label.grid(
@@ -239,14 +248,14 @@ class OptionsPage(Page):
         self.load_settings()
         check_fields = [
             "theme", "open_when_done", "notify_when_done"]
-        text_fields = [
+        button_fields = [
             "input_dir", "output_dir", "open_with"]
         numeric_fields = [
             "def_win_size_x", "def_win_size_y",
             "min_win_size_x", "min_win_size_y",
             "max_win_size_x", "max_win_size_y"]
 
-        for field in text_fields+numeric_fields:
+        for field in numeric_fields:
             self.__getattribute__(f"{field}_field").delete(
                 0, ctk.END)
             if self.options[field] is None:
@@ -256,8 +265,30 @@ class OptionsPage(Page):
                 self.__getattribute__(f"{field}_field").insert(
                     0, self.options[field])
 
+        for field in button_fields:
+            self.__getattribute__(f"{field}_field").configure(
+                text=self.options[field]
+            )
+
         for field in check_fields:
             if self.options[field]:
                 self.__getattribute__(f"{field}_field").select()
             else:
                 self.__getattribute__(f"{field}_field").deselect()
+
+    def select_file(self, type):
+        if type == "open_with":
+            directory = tk.filedialog.askopenfilename(
+                initialdir="./",
+                title=f"Select an 'Open With' file.",
+                filetypes=[("EXE files", ".EXE .exe")])
+        elif type == "output_dir" or type == "input_dir":
+            directory = tk.filedialog.askdirectory(
+                initialdir="./",
+                title=f"Select an '{type}'."
+            )
+
+        if directory is not "":
+            self.__getattribute__(f"{type}_field").configure(
+                text=directory)
+        print(directory)

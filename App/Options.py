@@ -35,8 +35,6 @@ class Options():
             try:
                 with open("App/resources/settings.json") as settings_file:
                     settings = json.load(settings_file)
-                    with open("App/resources/settings_default.json", "r") as defaults_file:
-                        defaults = json.load(defaults_file)
                 Options.validate_settings_file(self, settings)
                 break
 
@@ -49,9 +47,11 @@ class Options():
                 Options.reset_settings_file()
 
         # Create output folder for each embed mode.
-        os.makedirs("./output", exist_ok=True)
+        output = settings["options"]["output_dir"]
+        foldername = "Barcode Embedder Output"
+        os.makedirs(f"{output}/{foldername}", exist_ok=True)
         for embed_mode in [key for key in self.embed_modes.keys()]:
-            os.makedirs(f"./output/{embed_mode}", exist_ok=True)
+            os.makedirs(f"{output}/{foldername}/{embed_mode}", exist_ok=True)
 
     @staticmethod
     def reset_settings_file():
@@ -120,7 +120,7 @@ class Options():
         # Create directory settings.
         for directory_key in directory_keys:
             settings["options"][directory_key] = self.options_page.__getattribute__(
-                f"{directory_key}_field").get()
+                f"{directory_key}_field").text_label["text"]
 
         # Create window size settings
         for win_size_key in win_size_keys:
@@ -163,8 +163,8 @@ class Options():
         else:
             if not options["open_with"].endswith(".exe"):
                 self.error = f"Open with must be a valid .exe file."
-            if not os.path.isdir(options["input_dir"]):
-                self.error = "Default input folder must be a folder, not a file."
+            if not os.path.isdir(options["input_dir"]) or not os.path.isdir(options["output_dir"]):
+                self.error = "Input/output folders must be a folders, not files."
 
     @staticmethod
     def validate_win_size_setting(self, settings, win_size_key, win_size_value):

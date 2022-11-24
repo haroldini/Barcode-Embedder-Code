@@ -33,16 +33,16 @@
     },
     "options": {
         "input_dir": ".\\",
-        "output_dir": ".\\output",
+        "output_dir": "C:/Users/Harry/Documents/Output",
         "open_when_done": 1,
         "notify_when_done": 1,
         "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
         "theme": 1,
-        "def_win_size_x": 880,
+        "def_win_size_x": 860,
         "def_win_size_y": 520,
-        "min_win_size_x": 640,
-        "min_win_size_y": 440,
-        "max_win_size_x": 1280,
-        "max_win_size_y": 860
+        "min_win_size_x": null,
+        "min_win_size_y": null,
+        "max_win_size_x": null,
+        "max_win_size_y": null
     }
 }

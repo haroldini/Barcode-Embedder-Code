@@ -12,7 +12,6 @@ class LogsPage(Page):
         self.create_widgets()
 
     def create_widgets(self):
-        # Screen frame title.
 
         self.filler_button = ctk.CTkButton(master=self,
                                            text="Cancel",

@@ -9,8 +9,12 @@ class EmbedPage(Page):
         super().__init__(name="Embed", *args, **kwargs)
         self.create_top_frame()
         self.create_widgets()
+        self.create_scrollbar()
         self.frame_top.grid_columnconfigure(0, weight=2)
         self.frame_top.grid_columnconfigure(1, weight=1)
+        self.frame_top.grid_rowconfigure((0, 2), minsize=20)
+        self.frame_top.grid_rowconfigure(1, minsize=120)
+        self.frame_top.grid_rowconfigure(3, minsize=20)
 
     def create_widgets(self):
 
