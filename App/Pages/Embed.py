@@ -7,9 +7,10 @@ from Page import Page
 class EmbedPage(Page):
     def __init__(self, name="Embed", *args, **kwargs):
         super().__init__(name="Embed", *args, **kwargs)
-        self.grid_columnconfigure(0, weight=2)
         self.create_top_frame()
         self.create_widgets()
+        self.frame_top.grid_columnconfigure(0, weight=2)
+        self.frame_top.grid_columnconfigure(1, weight=1)
 
     def create_widgets(self):
 

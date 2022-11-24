@@ -102,6 +102,7 @@ class App(TkinterDnD.Tk):
         self.pages = [self.options_page, self.embed_page,
                       self.logs_page]
 
+        # Make scrollable regions of the pages change size with window resize.
         for page in self.pages:
             page.canvas_scroll.bind("<Configure>", page.onCanvasConfigure)
             page.canvas_scroll.configure(

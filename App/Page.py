@@ -49,7 +49,7 @@ class Page(ctk.CTkFrame):
         self.canvas_scroll.rowconfigure(0, weight=1)
 
         self.frame_top = ctk.CTkFrame(  # LIGHT_GREY
-            self.canvas_scroll, corner_radius=6, fg_color="red")
+            self.canvas_scroll, corner_radius=6, fg_color=self.LIGHT_GREY)
         self.canvas_scroll.create_window(
             0, 0, window=self.frame_top, anchor="nw", tags=self.name)
 
@@ -58,8 +58,8 @@ class Page(ctk.CTkFrame):
 
     def onCanvasConfigure(self, e):
         print(self.name)
-        self.canvas_scroll.itemconfig(self.name, height=self.canvas_scroll.winfo_height(
-        ), width=self.canvas_scroll.winfo_width())
+        self.canvas_scroll.itemconfig(
+            self.name, width=self.canvas_scroll.winfo_width())
 
     def load_settings(self):
         Options.load_settings(self)
