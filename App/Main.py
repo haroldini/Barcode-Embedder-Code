@@ -100,7 +100,12 @@ class App(TkinterDnD.Tk):
         self.frame_left.grid(row=0, column=0, padx=0, pady=0, sticky="nswe")
 
         self.pages = [self.options_page, self.embed_page,
-                      self.logs_page, self.frame_left]
+                      self.logs_page]
+
+        for page in self.pages:
+            page.canvas_scroll.bind("<Configure>", page.onCanvasConfigure)
+            page.canvas_scroll.configure(
+                scrollregion=page.canvas_scroll.bbox('all'))
 
     def create_navigation_handlers(self):
         self.frame_left.options_button.configure(

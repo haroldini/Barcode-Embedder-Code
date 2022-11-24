@@ -1,20 +1,7 @@
-import customtkinter
-import tkinter
-
-app = customtkinter.CTk()
-app.grid_rowconfigure(0, weight=1)
-app.grid_columnconfigure(0, weight=1)
-
-# create scrollable textbox
-tk_textbox = tkinter.Text(app, highlightthickness=0)
-tk_textbox.grid(row=0, column=0, sticky="nsew")
-
-# create CTk scrollbar
-ctk_textbox_scrollbar = customtkinter.CTkScrollbar(
-    app, command=tk_textbox.yview)
-ctk_textbox_scrollbar.grid(row=0, column=1, sticky="ns")
-
-# connect textbox scroll event to CTk scrollbar
-tk_textbox.configure(yscrollcommand=ctk_textbox_scrollbar.set)
-
-app.mainloop()
+from tkinter import *
+root = Tk()
+root.rowconfigure(0, weight=1)
+root.columnconfigure(0, weight=1)
+canv = Canvas(root, width=600, height=400, bg='#f0f0c0')
+canv.grid(row=0, column=0, sticky=N+S+E+W)
+root.mainloop()

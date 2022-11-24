@@ -5,8 +5,8 @@ from Page import Page
 
 
 class EmbedPage(Page):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name="Embed", *args, **kwargs):
+        super().__init__(name="Embed", *args, **kwargs)
         self.grid_columnconfigure(0, weight=2)
         self.create_top_frame()
         self.create_widgets()
@@ -66,7 +66,7 @@ class EmbedPage(Page):
                                           text_color=self.DARK_GREY,
                                           text_font=("Roboto Bold", -20))  # font name and size in px
         self.progresslabel.grid(
-            row=4, column=0, columnspan=1, pady=(0, 5), padx=(20, 10))
+            row=4, column=0, columnspan=1, pady=(20, 5), padx=(20, 10))
         self.progressbar = ctk.CTkProgressBar(
             master=self, progress_color=self.LIGHT_BLUE, fg_color=self.DARK_GREY)
         self.progressbar.grid(row=5, column=0, columnspan=1,

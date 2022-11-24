@@ -15,6 +15,7 @@ class Options():
         if theme == 0:
             ctk.set_appearance_mode("Light")
             self.DARK_GREY = "#40403f"
+            self.LIGHT_GREY = "#bfc6cc"
             self.LIGHT_BLUE = "#35c2d9"
             self.DARK_BLUE = "#329dae"
             self.WHITE = "#e3e3e3"
@@ -22,6 +23,7 @@ class Options():
         elif theme == 1:
             ctk.set_appearance_mode("Dark")
             self.DARK_GREY = "#e3e3e3"
+            self.LIGHT_GREY = "#343638"
             self.LIGHT_BLUE = "#329dae"
             self.DARK_BLUE = "#35c2d9"
             self.WHITE = "#40403f"

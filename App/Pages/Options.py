@@ -4,22 +4,18 @@ from Page import Page
 
 
 class OptionsPage(Page):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, name="Options", *args, **kwargs):
+        super().__init__(name="Options", *args, **kwargs)
         self.create_top_frame()
         self.frame_top.grid_columnconfigure((0, 1, 2), weight=1)
-        self.frame_top.grid_rowconfigure((1, 2, 3, 4, 5), minsize=20)
+        self.frame_top.grid_rowconfigure(
+            (0, 1, 2, 3, 4, 5, 6, 7, 8, 9), minsize=20)
+        self.create_title("Options")
         self.create_widgets()
+        self.create_scrollbar()
         self.fill_fields()
 
     def create_widgets(self):
-        # top frame.
-        self.options_label = ctk.CTkLabel(master=self.frame_top,
-                                          text="Options",
-                                          text_color=self.DARK_GREY,
-                                          text_font=("Roboto Bold", -24))
-        self.options_label.grid(
-            row=0, column=0, columnspan=3, pady=(15, 15), padx=20)
 
         self.theme_field = ctk.CTkCheckBox(master=self.frame_top,
                                            text="Dark Mode",
@@ -214,7 +210,7 @@ class OptionsPage(Page):
                                            text_font=(
                                                "Roboto Bold", -16))
         self.cancel_button.grid(row=4, rowspan=2, column=0,
-                                pady=(0, 20), padx=(20, 20), sticky="swe")
+                                pady=(20, 20), padx=(20, 20), sticky="swe")
 
         self.save_button = ctk.CTkButton(master=self,
                                          text="Save & Return",
@@ -227,7 +223,7 @@ class OptionsPage(Page):
                                          text_font=(
                                               "Roboto Bold", -16))
         self.save_button.grid(row=4, rowspan=2, column=1,
-                              pady=(0, 20), padx=(20, 20), sticky="swe")
+                              pady=(20, 20), padx=(20, 20), sticky="swe")
 
     def toggle_open_with_field(self):
         if self.open_when_done_field.get():
