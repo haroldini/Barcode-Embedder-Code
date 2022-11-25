@@ -49,43 +49,43 @@ class ModeEditPage(Page):
         self.name_field.grid(row=0, rowspan=1, column=1, columnspan=2,
                              pady=(20, 18), padx=20, sticky="we")
 
-        self.orderID_start_label = ctk.CTkLabel(master=self.frame_top,
-                                                text="ID Identifier",
-                                                anchor="w",
-                                                text_color=self.DARK_GREY,
-                                                text_font=("Roboto", -16))
-        self.orderID_start_label.grid(
+        self.ID_start_label = ctk.CTkLabel(master=self.frame_top,
+                                           text="ID Identifier",
+                                           anchor="w",
+                                           text_color=self.DARK_GREY,
+                                           text_font=("Roboto", -16))
+        self.ID_start_label.grid(
             row=1, column=0, pady=4, padx=20, sticky="w")
 
-        self.orderID_start_field = ctk.CTkEntry(master=self.frame_top,
-                                                placeholder_text="Precedes ID. eg: 'Order ID: '",
-                                                fg_color=self.WHITE,
-                                                height=35,
-                                                border_width=0,
-                                                corner_radius=6,
-                                                text_font=(
-                                                    "Roboto", -16))
-        self.orderID_start_field.grid(row=1, rowspan=1, column=1, columnspan=2,
-                                      pady=4, padx=20, sticky="we")
+        self.ID_start_field = ctk.CTkEntry(master=self.frame_top,
+                                           placeholder_text="Precedes ID. eg: 'Order ID: '",
+                                           fg_color=self.WHITE,
+                                           height=35,
+                                           border_width=0,
+                                           corner_radius=6,
+                                           text_font=(
+                                               "Roboto", -16))
+        self.ID_start_field.grid(row=1, rowspan=1, column=1, columnspan=2,
+                                 pady=4, padx=20, sticky="we")
 
-        self.orderID_length_label = ctk.CTkLabel(master=self.frame_top,
-                                                 text="ID Length",
-                                                 anchor="w",
-                                                 text_color=self.DARK_GREY,
-                                                 text_font=("Roboto", -16))
-        self.orderID_length_label.grid(
+        self.ID_length_label = ctk.CTkLabel(master=self.frame_top,
+                                            text="ID Length",
+                                            anchor="w",
+                                            text_color=self.DARK_GREY,
+                                            text_font=("Roboto", -16))
+        self.ID_length_label.grid(
             row=2, column=0, pady=(4, 18), padx=20, sticky="w")
 
-        self.orderID_length_field = ctk.CTkEntry(master=self.frame_top,
-                                                 placeholder_text="Length of ID",
-                                                 fg_color=self.WHITE,
-                                                 height=35,
-                                                 border_width=0,
-                                                 corner_radius=6,
-                                                 text_font=(
-                                                     "Roboto", -16))
-        self.orderID_length_field.grid(row=2, rowspan=1, column=1, columnspan=2,
-                                       pady=(4, 18), padx=20, sticky="we")
+        self.ID_length_field = ctk.CTkEntry(master=self.frame_top,
+                                            placeholder_text="Length of ID",
+                                            fg_color=self.WHITE,
+                                            height=35,
+                                            border_width=0,
+                                            corner_radius=6,
+                                            text_font=(
+                                                "Roboto", -16))
+        self.ID_length_field.grid(row=2, rowspan=1, column=1, columnspan=2,
+                                  pady=(4, 18), padx=20, sticky="we")
 
         self.start_page_label = ctk.CTkLabel(master=self.frame_top,
                                              text="Start Page",
@@ -242,7 +242,7 @@ class ModeEditPage(Page):
     def fill_fields(self):
         self.load_settings()
         fields = [
-            "orderID_start", "orderID_length",
+            "ID_start", "ID_length",
             "start_page", "skip_pages",
             "barcode_type", "barcode_size_x", "barcode_size_y",
             "barcode_location_x", "barcode_location_y"]

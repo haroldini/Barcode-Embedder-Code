@@ -179,7 +179,7 @@ class App(TkinterDnD.Tk):
             with open("App/resources/settings.json", "r") as settings_file:
                 settings = json.load(settings_file)
             prev_settings = deepcopy(settings)
-            settings = Options.create_new_settings(self, settings)
+            settings = Options.create_new_options(self, settings)
             # ensure both directories are valid directories somehow.
 
             # Save new settings dictionary.
@@ -215,8 +215,25 @@ class App(TkinterDnD.Tk):
 
     def edit_mode_save_button_handler(self):
         if self.current_page == "options":
-            self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
-            self.options_page.lift()
+
+            self.error = None
+            with open("App/resources/settings.json", "r") as settings_file:
+                settings = json.load(settings_file)
+
+            new_mode = Options.create_new_modes(self)
+
+            # If no error, new mode is saved. Then navigate to options page.
+            if self.error == None:
+                print(list(new_mode)[0])
+                settings["modes"][list(new_mode)[0]
+                                  ] = new_mode[list(new_mode)[0]]
+                print(settings["modes"])
+
+                with open("App/resources/settings.json", "w") as settings_file:
+                    settings_file.write(json.dumps(settings, indent=4))
+
+                self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
+                self.options_page.lift()
 
     def logs_back_button_handler(self):
         if self.current_page == "logs":

@@ -81,8 +81,8 @@ class Options():
             "max_win_size_y": Or(int, None)
         }
         modes_schema = {
-            "orderID_start": str,
-            "orderID_length": int,
+            "ID_start": str,
+            "ID_length": int,
             "start_page": int,
             "skip_pages": list,
             "barcode_type": str,
@@ -107,7 +107,7 @@ class Options():
         self.settings = settings
 
     @staticmethod
-    def create_new_settings(self, settings):
+    def create_new_options(self, settings):
         checkbox_keys = ["theme", "open_when_done", "notify_when_done"]
         directory_keys = ["open_with", "input_dir", "output_dir"]
         win_size_keys = ["def_win_size_x", "def_win_size_y",
@@ -128,15 +128,15 @@ class Options():
         for win_size_key in win_size_keys:
             win_size_value = self.options_page.__getattribute__(
                 f"{win_size_key}_field").get()
-            Options.validate_win_size_setting(
+            Options.validate_win_size_options(
                 self, settings, win_size_key, win_size_value)
 
-        Options.validate_new_settings(
+        Options.validate_new_options(
             self, settings, checkbox_keys, directory_keys)
         return settings
 
     @staticmethod
-    def validate_new_settings(self, settings, checkbox_keys, directory_keys):
+    def validate_new_options(self, settings, checkbox_keys, directory_keys):
         options = settings["options"]
 
         # Ensure window sizes adhere to min<def<max.
@@ -169,7 +169,7 @@ class Options():
                 self.error = "Input/output folders must be a folders, not files."
 
     @staticmethod
-    def validate_win_size_setting(self, settings, win_size_key, win_size_value):
+    def validate_win_size_options(self, settings, win_size_key, win_size_value):
         options = settings["options"]
 
         # If input can be converted to int type, set it as setting.
@@ -188,3 +188,118 @@ class Options():
         if options[win_size_key] is not None:
             if options[win_size_key] < 100 or options[win_size_key] > 2000:
                 self.error = "Window size settings must be between 100 and 2000, or 'None'."
+
+    @staticmethod
+    def create_new_modes(self):
+        fields = ["ID_start", "ID_length",
+                  "start_page", "skip_pages",
+                  "barcode_type", "barcode_size_x", "barcode_size_y",
+                  "barcode_location_x", "barcode_location_y"]
+        numeric_fields = ["barcode_location_x", "barcode_location_y",
+                          "barcode_size_x", "barcode_size_y",
+                          "ID_length", "start_page"]
+
+        new_mode_options = {}
+
+        # Loop fields to validate they are filled.
+        for field in fields:
+            field_value = self.mode_edit_page.__getattribute__(
+                f"{field}_field").get()
+            if field_value == "" and field != "skip_pages":
+                self.error = "All fields except 'Skip Pages', are required to create a document preset."
+                return
+
+        # Loop fields to validate their content.
+        for field in fields:
+            field_value = self.mode_edit_page.__getattribute__(
+                f"{field}_field").get()
+            Options.validate_new_mode_field(self, field, field_value)
+            if field in numeric_fields:
+                new_mode_options[field] = int(field_value)
+            elif field == "skip_pages":
+                if field_value == "":
+                    new_mode_options[field] = []
+                else:
+                    sp_list = [int(val)
+                               for val in field_value.replace(" ", "").split(",")]
+                    new_mode_options[field] = sp_list
+            else:  # field = string
+                new_mode_options[field] = field_value
+
+        new_mode = {self.mode_edit_page.name_field.get(): new_mode_options}
+        return new_mode
+
+    @staticmethod
+    def validate_new_mode_field(self, field, field_value):
+        locations = ["barcode_location_x", "barcode_location_y"]
+        numeric_fields = ["barcode_location_x", "barcode_location_y",
+                          "barcode_size_x", "barcode_size_y",
+                          "ID_length", "start_page"]
+
+        # Validate string fields.
+        if field == "barcode_type" or field == "ID_start":
+            field_name = field.replace("_", " ").title()
+            if len(field_value) > 100:
+                self.error = f"{field_name} cannot contain more than 100 characters"
+                return
+
+        # Validate that numeric fields have numeric input.
+        if field in numeric_fields:
+            try:
+                field_value = int(field_value)
+            except ValueError:
+                field_name = field.replace("_", " ").title()
+                self.error = f"{field_name} requires numeric input"
+                return
+
+        # Numeric fields validation
+        if field == "ID_length":
+            if field_value > 128 or field_value < 1:
+                self.error = "ID Length must be between 1 and 128"
+
+        if field == "barcode_size_x":
+            if field_value > 2000 or field_value < 50:
+                self.error = "Barcode width must be between 50 and 2000"
+                return
+        if field == "barcode_size_y":
+            if field_value > 1000 or field_value < 10:
+                self.error = "Barcode height must be between 10 and 1000"
+                return
+        if field in locations:
+            if field_value > 10000 or field_value < 1:
+                self.error = "Barcode location must be between 0 and 10,000"
+                return
+        if field == "start_page":
+            if field_value < 1:
+                self.error = "Start page cannot be less than 1"
+                return
+            if field_value > 10000:
+                self.error = "Start page cannot be greater than 10,000"
+                return
+
+        # List field validation
+        if field == "skip_pages":
+            field_values = field_value.replace(" ", "").split(",")
+
+            # Skip none.
+            if field_value == "":
+                return
+
+            # Ensure less than 100 items in list.
+            if len(field_values) > 100:
+                self.error = "Cannot skip more than 100 pages"
+                return
+
+            # Ensure skipped pages are valid numbers.
+            for val in field_values:
+                try:
+                    val = int(val)
+                except ValueError:
+                    self.error = "Skipped pages must be numbers"
+                    return
+                if val < 1:
+                    self.error = "Skipped pages cannot be less than 1"
+                    return
+                if val > 10000:
+                    self.error = "Skipped pages cannot be greater than 10,000"
+                    return
