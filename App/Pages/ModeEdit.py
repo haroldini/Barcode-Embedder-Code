@@ -11,7 +11,7 @@ class ModeEditPage(Page):
         self.frame_top.grid_columnconfigure(0, minsize=80)
         self.frame_top.grid_columnconfigure((1, 2), weight=1)
         self.frame_top.grid_rowconfigure(
-            (0, 1, 2, 3, 4, 5, 6, 7, 8), minsize=20)
+            (0, 1, 2, 3, 4, 5, 6, 7), minsize=20)
 
         self.create_title("Edit Preset")
         self.mode = None
@@ -20,13 +20,13 @@ class ModeEditPage(Page):
 
     def show(self, mode):
         self.mode = mode
+        self.canvas_scroll.yview_moveto(0)
         if self.mode == "Add New":
             self.title_label.configure(text="New Preset")
         else:
             self.title_label.configure(text="Edit Preset")
         self.fill_fields()
         self.lift()
-        print(self.mode)
 
     def create_widgets(self):
 
@@ -187,7 +187,7 @@ class ModeEditPage(Page):
                                                          "Roboto", -16))
 
         self.barcode_location_x_field.grid(
-            row=7, column=1, pady=(4, 0), padx=(20, 0), sticky="we")
+            row=7, column=1, pady=(4, 18), padx=(20, 0), sticky="we")
 
         self.barcode_location_y_field = ctk.CTkEntry(master=self.frame_top,
                                                      placeholder_text="px",
@@ -199,7 +199,7 @@ class ModeEditPage(Page):
                                                          "Roboto", -16))
 
         self.barcode_location_y_field.grid(
-            row=7, column=2, pady=(4, 0), padx=20, sticky="we")
+            row=7, column=2, pady=(4, 18), padx=20, sticky="we")
 
         self.barcode_location_label = ctk.CTkLabel(master=self.frame_top,
                                                    text="Barcode Location",
@@ -208,7 +208,20 @@ class ModeEditPage(Page):
                                                    text_font=("Roboto", -16))
 
         self.barcode_location_label.grid(
-            row=7, column=0, pady=(4, 0), padx=20, sticky="w")
+            row=7, column=0, pady=(4, 18), padx=20, sticky="w")
+
+        self.delete_button = ctk.CTkButton(master=self.frame_top,
+                                           cursor="hand2",
+                                           text="Delete Preset",
+                                           fg_color=self.WHITE,
+                                           hover_color=self.LIGHT_BLUE,
+                                           height=35,
+                                           border_width=0,
+                                           corner_radius=6,
+                                           text_font=(
+                                               "Roboto", -16))
+        self.delete_button.grid(row=8, rowspan=1, column=0, columnspan=3,
+                                pady=(4, 20), padx=20, sticky="we")
 
         # Under top frame.
         self.back_button = ctk.CTkButton(master=self,
@@ -221,7 +234,7 @@ class ModeEditPage(Page):
                                          width=150,
                                          corner_radius=20,
                                          text_font=(
-                                             "Roboto Bold", -16))
+                                             "Roboto", -16))
         self.back_button.grid(row=4, rowspan=2, column=0,
                               pady=(20, 20), padx=(20, 20), sticky="swe")
 
@@ -235,7 +248,7 @@ class ModeEditPage(Page):
                                          width=150,
                                          corner_radius=20,
                                          text_font=(
-                                              "Roboto Bold", -16))
+                                              "Roboto", -16))
         self.save_button.grid(row=4, rowspan=2, column=1,
                               pady=(20, 20), padx=(20, 20), sticky="swe")
 
@@ -249,14 +262,15 @@ class ModeEditPage(Page):
 
         if self.mode == "Add New":
             self.name_field.delete(0, ctk.END)
+            self.delete_button.grid_remove()
             for field in fields:
                 self.__getattribute__(f"{field}_field").delete(
                     0, ctk.END)
         else:
             mode = self.settings["modes"][self.mode]
-            print(mode)
             self.name_field.delete(0, ctk.END)
             self.name_field.insert(0, self.mode)
+            self.delete_button.grid()
 
             for field in fields:
                 self.__getattribute__(f"{field}_field").delete(

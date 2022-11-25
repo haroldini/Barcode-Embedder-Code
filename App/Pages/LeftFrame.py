@@ -58,7 +58,7 @@ class LeftFrame(Page):
                                          width=150,
                                          corner_radius=20,
                                          text_font=(
-                                             "Roboto Bold", -16))
+                                             "Roboto", -16))
         self.logs_button.grid(row=5, column=0, pady=(20, 20), padx=20)
 
         # Settings button.
@@ -72,7 +72,7 @@ class LeftFrame(Page):
                                             width=150,
                                             corner_radius=20,
                                             text_font=(
-                                                 "Roboto Bold", -16))
+                                                 "Roboto", -16))
         self.options_button.grid(row=6, column=0, pady=(0, 20), padx=20)
 
         self.version_label = ctk.CTkLabel(master=self,

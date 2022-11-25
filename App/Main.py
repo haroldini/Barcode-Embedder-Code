@@ -119,18 +119,49 @@ class App(TkinterDnD.Tk):
             command=self.options_button_handler)
         self.frame_left.logs_button.configure(
             command=self.logs_button_handler)
+
+        self.logs_page.back_button.configure(
+            command=self.logs_back_button_handler)
+
         self.options_page.back_button.configure(
             command=self.options_back_button_handler)
         self.options_page.save_button.configure(
             command=self.options_save_button_handler)
-        self.logs_page.back_button.configure(
-            command=self.logs_back_button_handler)
         self.options_page.edit_mode_field.configure(
-            command=self.edit_mode_button_handler)
+            command=lambda mode: self.mode_edit_page.show(mode))
+        self.options_page.restore_presets_button.configure(
+            command=self.options_restore_presets_button_handler)
+        self.options_page.restore_settings_button.configure(
+            command=self.options_restore_settings_button_handler)
+
         self.mode_edit_page.back_button.configure(
             command=self.edit_mode_back_button_handler)
         self.mode_edit_page.save_button.configure(
             command=self.edit_mode_save_button_handler)
+        self.mode_edit_page.delete_button.configure(
+            command=self.edit_mode_delete_button_handler)
+
+    def options_restore_presets_button_handler(self):
+        Options.reset_settings_file("modes")
+        Options.load_settings(self)
+        self.embed_page.embed_mode_button.configure(
+            values=list(self.settings["modes"].keys()))
+        self.options_page.edit_mode_field.configure(
+            values=list(list(self.settings["modes"].keys())+["Add New"]))
+
+    def options_restore_settings_button_handler(self):
+        Options.reset_settings_file("options")
+        Options.load_settings(self)
+        Options.get_colors(self, theme=self.options["theme"])
+        self.configure_app()
+        self.create_pages()
+        self.create_navigation_handlers()
+
+        self.frame_left.options_button.configure(fg_color=self.LIGHT_BLUE)
+        self.frame_left.options_button.configure(state="disabled")
+        self.frame_left.logs_button.configure(state="disabled")
+        self.frame_left.logs_button.configure(fg_color=None)
+        self.options_page.lift()
 
     def options_button_handler(self):
         if self.current_page != "options":
@@ -183,7 +214,7 @@ class App(TkinterDnD.Tk):
             # ensure both directories are valid directories somehow.
 
             # Save new settings dictionary.
-            if self.error == None:
+            if self.error is None:
                 with open("App/resources/settings.json", "w") as settings_file:
                     settings_file.write(json.dumps(settings, indent=4))
 
@@ -206,10 +237,8 @@ class App(TkinterDnD.Tk):
                 self.current_page = "embed"
                 self.embed_page.lift()
 
-    def edit_mode_button_handler(self, mode):
-        self.mode_edit_page.show(mode)
-
     def edit_mode_back_button_handler(self):
+        self.error = None
         self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
         self.options_page.lift()
 
@@ -220,12 +249,11 @@ class App(TkinterDnD.Tk):
             with open("App/resources/settings.json", "r") as settings_file:
                 settings = json.load(settings_file)
 
-            new_mode_name, new_mode_options = Options.create_new_modes(self)
-            old_mode_name = self.mode_edit_page.mode
-            print(old_mode_name, new_mode_name)
-
+            new_mode = Options.create_new_modes(self)
             # Save new mode.
-            if self.error == None:
+            if self.error is None:
+                new_mode_name, new_mode_options = new_mode
+                old_mode_name = self.mode_edit_page.mode
 
                 # If not "Add New", delete old mode.
                 if old_mode_name != "Add New":
@@ -236,13 +264,27 @@ class App(TkinterDnD.Tk):
                     settings_file.write(json.dumps(settings, indent=4))
 
                 # Apply mode changes to mode dropdowns, navigate to options page.
-                Options.load_settings(self)
-                self.embed_page.embed_mode_button.configure(
-                    values=list(self.settings["modes"].keys()))
-                self.options_page.edit_mode_field.configure(
-                    values=list(self.settings["modes"].keys()))
-                self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
-                self.options_page.lift()
+                self.nav_from_mode_to_options()
+
+    def nav_from_mode_to_options(self):
+        Options.load_settings(self)
+        self.embed_page.embed_mode_button.configure(
+            values=list(self.settings["modes"].keys()))
+        self.options_page.edit_mode_field.configure(
+            values=list(list(self.settings["modes"].keys())+["Add New"]))
+        self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
+        self.options_page.lift()
+
+    def edit_mode_delete_button_handler(self):
+        with open("App/resources/settings.json", "r") as settings_file:
+            settings = json.load(settings_file)
+            if len(settings["modes"]) > 1:
+                settings["modes"].pop(self.mode_edit_page.mode)
+                with open("App/resources/settings.json", "w") as settings_file:
+                    settings_file.write(json.dumps(settings, indent=4))
+                self.nav_from_mode_to_options()
+            else:
+                self.error = "Cannot delete only preset. Create a new preset first."
 
     def logs_back_button_handler(self):
         if self.current_page == "logs":

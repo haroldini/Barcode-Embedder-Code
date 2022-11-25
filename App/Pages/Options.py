@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import tkinter as tk
+import os
 
 from Page import Page
 
@@ -12,7 +13,7 @@ class OptionsPage(Page):
         self.frame_top.grid_columnconfigure(0, minsize=80)
         self.frame_top.grid_columnconfigure((1, 2), weight=1)
         self.frame_top.grid_rowconfigure(
-            (0, 1, 2, 3, 4, 5, 6, 7, 8, 9), minsize=20)
+            (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), minsize=20)
         self.create_title("Options")
         self.create_widgets()
         self.create_scrollbar()
@@ -212,7 +213,7 @@ class OptionsPage(Page):
                                                      "Roboto", -16))
 
         self.max_win_size_x_field.grid(
-            row=8, column=1, pady=4, padx=0, sticky="we")
+            row=8, column=1, pady=(4, 18), padx=0, sticky="we")
 
         self.max_win_size_y_field = ctk.CTkEntry(master=self.frame_top,
                                                  placeholder_text="Blank to ignore",
@@ -224,7 +225,7 @@ class OptionsPage(Page):
                                                      "Roboto", -16))
 
         self.max_win_size_y_field.grid(
-            row=8, column=2, pady=4, padx=20, sticky="we")
+            row=8, column=2, pady=(4, 18), padx=20, sticky="we")
 
         self.max_win_size_label = ctk.CTkLabel(master=self.frame_top,
                                                text="Maximum Window Size",
@@ -233,7 +234,41 @@ class OptionsPage(Page):
                                                text_font=("Roboto", -16))
 
         self.max_win_size_label.grid(
-            row=8, column=0, pady=(4, 0), padx=20, sticky="we")
+            row=8, column=0, pady=(4, 18), padx=20, sticky="we")
+
+        # Restore defaults buttons. Frame needed to ignore parent frame columnconfigure.
+        self.reset_buttons_frame = ctk.CTkFrame(
+            master=self.frame_top, fg_color=self.LIGHT_GREY)
+        self.reset_buttons_frame.grid(
+            row=9, column=0, columnspan=3, sticky="nswe")
+        self.reset_buttons_frame.grid_columnconfigure((0, 1), weight=1)
+        self.reset_buttons_frame.grid_rowconfigure(1, weight=1)
+
+        self.restore_settings_button = ctk.CTkButton(master=self.reset_buttons_frame,
+                                                     cursor="hand2",
+                                                     text="Restore Default Settings",
+                                                     text_color=self.DARK_GREY,
+                                                     fg_color=self.WHITE,
+                                                     hover_color=self.LIGHT_BLUE,
+                                                     height=35,
+                                                     corner_radius=6,
+                                                     text_font=(
+                                                         "Roboto", -16))
+        self.restore_settings_button.grid(row=0, column=0,
+                                          pady=(4, 0), padx=(20, 10), sticky="nswe")
+
+        self.restore_presets_button = ctk.CTkButton(master=self.reset_buttons_frame,
+                                                    cursor="hand2",
+                                                    text="Restore Default Presets",
+                                                    text_color=self.DARK_GREY,
+                                                    fg_color=self.WHITE,
+                                                    hover_color=self.LIGHT_BLUE,
+                                                    height=35,
+                                                    corner_radius=6,
+                                                    text_font=(
+                                                         "Roboto", -16))
+        self.restore_presets_button.grid(row=0, column=1,
+                                         pady=(4, 0), padx=(10, 20), sticky="nswe")
 
         # Under top frame.
         self.back_button = ctk.CTkButton(master=self,
@@ -246,7 +281,7 @@ class OptionsPage(Page):
                                          width=150,
                                          corner_radius=20,
                                          text_font=(
-                                             "Roboto Bold", -16))
+                                             "Roboto", -16))
         self.back_button.grid(row=4, rowspan=2, column=0,
                               pady=(20, 20), padx=(20, 20), sticky="swe")
 
@@ -260,7 +295,7 @@ class OptionsPage(Page):
                                          width=150,
                                          corner_radius=20,
                                          text_font=(
-                                              "Roboto Bold", -16))
+                                              "Roboto", -16))
         self.save_button.grid(row=4, rowspan=2, column=1,
                               pady=(20, 20), padx=(20, 20), sticky="swe")
 
@@ -311,14 +346,17 @@ class OptionsPage(Page):
         self.edit_mode_field.text_label["text"] = "Edit Document Preset"
 
     def select_file(self, type):
+        currentdir = self.__getattribute__(f"{type}_field").text_label["text"]
+        print(currentdir)
         if type == "open_with":
+            currentdir = os.path.dirname(currentdir)
             directory = tk.filedialog.askopenfilename(
-                initialdir="./",
+                initialdir=currentdir if currentdir else "./",
                 title=f"Select an 'Open With' file.",
                 filetypes=[("EXE files", ".EXE .exe")])
         elif type == "output_dir" or type == "input_dir":
             directory = tk.filedialog.askdirectory(
-                initialdir="./",
+                initialdir=currentdir if currentdir is not None else "./",
                 title=f"Select an '{type}'."
             )
 

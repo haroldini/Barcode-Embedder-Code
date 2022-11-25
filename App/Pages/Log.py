@@ -23,7 +23,7 @@ class LogsPage(Page):
                                            width=150,
                                            corner_radius=20,
                                            text_font=(
-                                               "Roboto Bold", -16))
+                                               "Roboto", -16))
         self.filler_button.grid(row=4, rowspan=2, column=0,
                                 pady=(20, 20), padx=(20, 20), sticky="swe")
 
@@ -37,6 +37,6 @@ class LogsPage(Page):
                                          width=150,
                                          corner_radius=20,
                                          text_font=(
-                                              "Roboto Bold", -16))
+                                              "Roboto", -16))
         self.back_button.grid(row=4, rowspan=2, column=1,
                               pady=(20, 20), padx=(20, 20), sticky="swe")

@@ -31,6 +31,7 @@ class Options():
 
     def load_settings(self):
 
+        # Attempts: reset options, reset modes, reset all, final attempt
         for _ in range(2):
             try:
                 with open("App/resources/settings.json") as settings_file:
@@ -40,11 +41,12 @@ class Options():
 
             # If settings not found, write default settings file.
             except FileNotFoundError as e:
-                self.error = "Settings file not found."
-                Options.reset_settings_file()
+                self.error = "Settings file not found. Default settings restored."
+                Options.reset_settings_file("both")
+
             except json.decoder.JSONDecodeError as e:
-                self.error = "Settings file invalid JSON."
-                Options.reset_settings_file()
+                self.error = "Settings file invalid. Default settings restored."
+                Options.reset_settings_file("both")
 
         # Create output folder for each embed mode.
         output = settings["options"]["output_dir"]
@@ -54,10 +56,19 @@ class Options():
             os.makedirs(f"{output}/{foldername}/{embed_mode}", exist_ok=True)
 
     @staticmethod
-    def reset_settings_file():
-        with open("App/resources/settings_default.json", "r+") as infile:
-            with open("App/resources/settings.json", "w") as outfile:
-                outfile.write(json.dumps(json.load(infile), indent=4))
+    def reset_settings_file(to_reset="both"):
+        with open("App/resources/settings_default.json", "r") as default_file:
+            if to_reset == "both":
+                with open("App/resources/settings.json", "w") as outfile:
+                    outfile.write(json.dumps(
+                        json.load(default_file), indent=4))
+            elif to_reset == "modes" or to_reset == "options":
+                with open("App/resources/settings.json", "r") as current_file:
+                    settings = json.load(current_file)
+                    default = json.load(default_file)
+                    settings[to_reset] = default[to_reset]
+                    with open("App/resources/settings.json", "w") as outfile:
+                        outfile.write(json.dumps(settings, indent=4))
 
     @staticmethod
     def validate_settings_file(self, settings):
