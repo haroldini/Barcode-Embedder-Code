@@ -115,7 +115,7 @@ class ModeEditPage(Page):
             row=4, column=0, pady=(4, 18), padx=20, sticky="w")
 
         self.skip_pages_field = ctk.CTkEntry(master=self.frame_top,
-                                             placeholder_text="Separate by comma. eg: '2, 3, 7'",
+                                             placeholder_text="Blank or list. eg: '2, 3, 7' ",
                                              fg_color=self.WHITE,
                                              height=35,
                                              border_width=0,

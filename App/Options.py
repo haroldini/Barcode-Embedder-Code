@@ -226,8 +226,8 @@ class Options():
             else:  # field = string
                 new_mode_options[field] = field_value
 
-        new_mode = {self.mode_edit_page.name_field.get(): new_mode_options}
-        return new_mode
+        new_mode_name = self.mode_edit_page.name_field.get()
+        return new_mode_name, new_mode_options
 
     @staticmethod
     def validate_new_mode_field(self, field, field_value):

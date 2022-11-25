@@ -220,18 +220,27 @@ class App(TkinterDnD.Tk):
             with open("App/resources/settings.json", "r") as settings_file:
                 settings = json.load(settings_file)
 
-            new_mode = Options.create_new_modes(self)
+            new_mode_name, new_mode_options = Options.create_new_modes(self)
+            old_mode_name = self.mode_edit_page.mode
+            print(old_mode_name, new_mode_name)
 
-            # If no error, new mode is saved. Then navigate to options page.
+            # Save new mode.
             if self.error == None:
-                print(list(new_mode)[0])
-                settings["modes"][list(new_mode)[0]
-                                  ] = new_mode[list(new_mode)[0]]
-                print(settings["modes"])
+
+                # If not "Add New", delete old mode.
+                if old_mode_name != "Add New":
+                    settings["modes"].pop(old_mode_name)
+                settings["modes"][new_mode_name] = new_mode_options
 
                 with open("App/resources/settings.json", "w") as settings_file:
                     settings_file.write(json.dumps(settings, indent=4))
 
+                # Apply mode changes to mode dropdowns, navigate to options page.
+                Options.load_settings(self)
+                self.embed_page.embed_mode_button.configure(
+                    values=list(self.settings["modes"].keys()))
+                self.options_page.edit_mode_field.configure(
+                    values=list(self.settings["modes"].keys()))
                 self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
                 self.options_page.lift()
 
