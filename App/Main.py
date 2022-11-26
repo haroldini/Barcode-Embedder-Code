@@ -19,6 +19,7 @@ from copy import deepcopy
 
 from Page import Page
 from Options import Options
+from Embed import Embed
 from Pages.Options import OptionsPage
 from Pages.Embed import EmbedPage
 from Pages.Log import LogsPage
@@ -74,6 +75,7 @@ class App(TkinterDnD.Tk):
 
         # Prep embedder
         self.active_file = None
+        self.active_file_name = None
         self.active_mode = None
 
         # Run app.
@@ -162,16 +164,7 @@ class App(TkinterDnD.Tk):
             command=self.edit_mode_delete_button_handler)
 
     def embed_mode_button_handler(self, event):
-        self.active_mode = event
-
-        if self.active_file is not None:
-            self.embed_page.embed_button.configure(state="normal")
-            self.embed_page.progresslabel.configure(
-                text="Click Embed to continue")
-        else:
-            self.embed_page.embed_button.configure(state="disabled")
-            self.embed_page.progresslabel.configure(
-                text="Select a file to start")
+        self.set_active_mode(event)
 
     def select_pdf_button_handler(self, event=None):
         print("select file")
@@ -190,24 +183,71 @@ class App(TkinterDnD.Tk):
         if file.startswith("{") and file.endswith("}"):
             file = file[1:-1]
         if file.endswith(".pdf"):
-            self.active_file = file
-            self.active_file_name = self.active_file.split("/")[-1]
-            self.embed_page.select_pdf_button.configure(
-                text=self.active_file_name)
-
-            if self.active_mode is not None:
-                self.embed_page.embed_button.configure(state="normal")
-                self.embed_page.progresslabel.configure(
-                    text="Click Embed to continue")
-            else:
-                self.embed_page.embed_button.configure(state="disabled")
-                self.embed_page.progresslabel.configure(
-                    text="Select a preset to continue")
+            self.set_active_file(file)
+        else:
+            self.error = "Selected file is invalid. Please select a PDF."
 
     def embed_button_handler(self):
-        print("embed button pressed")
-        print(self.active_file)
-        print(self.active_mode)
+
+        # Disable all buttons
+        self.embed_page.embed_button.configure(state="disabled")
+        self.embed_page.select_pdf_button.configure(state="disabled")
+        self.embed_page.embed_mode_button.configure(
+            state="disabled", cursor="arrow",)
+        self.frame_left.options_button.configure(state="disabled")
+        self.frame_left.logs_button.configure(state="disabled")
+
+        # Start embedding.
+        Embed(file=self.active_file,
+              mode=self.active_mode).start()
+
+    def set_active_file(self, file):
+        self.active_file = file
+        self.active_file_name = self.active_file.split("/")[-1]
+        self.embed_page.select_pdf_button.configure(
+            text=self.active_file_name)
+
+        if self.active_mode is not None:
+            self.embed_page.embed_button.configure(state="normal")
+            self.embed_page.progresslabel.configure(
+                text="Click Embed to continue.")
+        else:
+            self.embed_page.embed_button.configure(state="disabled")
+            self.embed_page.progresslabel.configure(
+                text="Select a preset to continue.")
+
+    def remove_active_file(self):
+        self.active_file = None
+        self.active_file_name = None
+        self.embed_page.select_pdf_button.configure(
+            text="Drag PDF here.\nOr click to select PDF.")
+
+        self.embed_page.embed_button.configure(state="disabled")
+        self.embed_page.progresslabel.configure(
+            text="Select a file to start.")
+
+    def set_active_mode(self, mode):
+        self.active_mode = mode
+        if self.active_file is not None:
+            self.embed_page.embed_button.configure(state="normal")
+            self.embed_page.progresslabel.configure(
+                text="Click Embed to continue.")
+        else:
+            self.embed_page.embed_button.configure(state="disabled")
+            self.embed_page.progresslabel.configure(
+                text="Select a file to start.")
+
+    def remove_active_mode(self):
+        self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
+        self.active_mode = None
+        if self.active_file is not None:
+            self.embed_page.embed_button.configure(state="normal")
+            self.embed_page.progresslabel.configure(
+                text="Select a preset to continue.")
+        else:
+            self.embed_page.embed_button.configure(state="disabled")
+            self.embed_page.progresslabel.configure(
+                text="Select a file to start.")
 
     def options_restore_presets_button_handler(self):
         Options.reset_settings_file("modes")
@@ -265,11 +305,12 @@ class App(TkinterDnD.Tk):
             self.frame_left.options_button.configure(fg_color=None)
             self.frame_left.options_button.configure(state="normal")
             self.frame_left.logs_button.configure(state="normal")
+
             self.embed_page.embed_mode_button.configure(
                 values=list(self.settings["modes"].keys()))
-            self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
-            self.active_mode = None
-            self.active_file = None
+            self.remove_active_mode()
+            self.remove_active_file()
+
             self.embed_page.lift()
 
     def options_save_button_handler(self):
@@ -295,18 +336,21 @@ class App(TkinterDnD.Tk):
                     self.create_pages()
                     self.create_button_handlers()
                 self.configure_app()
+
+                # Modify navigation buttons.
                 self.frame_left.options_button.configure(fg_color=None)
                 self.frame_left.options_button.configure(state="normal")
                 self.frame_left.logs_button.configure(state="normal")
+
+                # Reset active mode and file.
                 self.embed_page.embed_mode_button.configure(
                     values=list(self.settings["modes"].keys()))
-                self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
+                self.remove_active_mode()
+                self.remove_active_file()
 
                 # Navigate to embed page.
                 self.previous_page = self.current_page
                 self.current_page = "embed"
-                self.active_mode = None
-                self.active_file = None
                 self.embed_page.lift()
 
     def edit_mode_back_button_handler(self):

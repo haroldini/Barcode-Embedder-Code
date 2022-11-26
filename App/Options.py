@@ -254,6 +254,18 @@ class Options():
                 self.error = f"{field_name} cannot contain more than 100 characters"
                 return
 
+        # Valid barcode types.
+        if field == "barcode_type":
+            valid_barcodes = ["Code39", "Code128", "PZN7",
+                              "EuropeanArticleNumber13", "EuropeanArticleNumber8",
+                              "JapanArticleNumber", "InternationalStandardBookNumber13",
+                              "InternationalStandardBookNumber10",
+                              "InternationalStandardSerialNumber",
+                              "UniversalProductCode8", "EuropeanArticleNumber14",
+                              "Gs1_128"]
+            if field_value not in valid_barcodes:
+                self.error = f"{field_value} is not a valid barcode type."
+
         # Validate that numeric fields have numeric input.
         if field in numeric_fields:
             try:
