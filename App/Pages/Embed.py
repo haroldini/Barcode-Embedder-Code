@@ -27,7 +27,7 @@ class EmbedPage(Page):
             row=0, column=0, columnspan=3, pady=(15, 15), padx=20)
 
         # Screen frame content.
-        self.select_file_label = ctk.CTkButton(master=self.frame_top,
+        self.select_pdf_button = ctk.CTkButton(master=self.frame_top,
                                                cursor="hand2",
                                                text="Drag PDF here.\nOr click to select PDF.",
                                                text_color=self.DARK_GREY,
@@ -37,11 +37,8 @@ class EmbedPage(Page):
                                                corner_radius=6,
                                                hover_color=self.LIGHT_BLUE)
 
-        self.select_file_label.grid(
+        self.select_pdf_button.grid(
             column=0, columnspan=3, row=1, sticky="nwe", padx=20, pady=(0, 20))
-
-        self.select_file_label.drop_target_register(DND_FILES)
-        self.select_file_label.dnd_bind("<<Drop>>")
 
         self.embed_mode_label = ctk.CTkLabel(master=self.frame_top,
                                              text="Select Document Type",
@@ -81,7 +78,7 @@ class EmbedPage(Page):
         self.progressbar.configure(progress_color=self.DARK_GREY)
 
         self.embed_button = ctk.CTkButton(master=self,
-                                          cursor="hand2",
+                                          state="disabled",
                                           text="Embed",
                                           text_color=self.DARK_GREY,
                                           fg_color=self.LIGHT_BLUE,

@@ -50,6 +50,7 @@ class App(TkinterDnD.Tk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        # Load options.
         Options.load_settings(self)
         Options.get_colors(self, theme=self.options["theme"])
         self.iconbitmap("App/resources/icon.ico")
@@ -61,19 +62,28 @@ class App(TkinterDnD.Tk):
                       f"{self.options[f'def_win_size_y'] if self.options[f'def_win_size_y'] is not None else 520}")
         self.configure_app()
 
+        # Prep gui.
         self.current_page = "embed"
         self.previous_page = "embed"
         self.error = None
 
+        # Create gui
         self.create_pages()
         self.embed_page.lift()
-        self.create_navigation_handlers()
-        self.after(DELAY, self.update_app)
+        self.create_button_handlers()
 
+        # Prep embedder
+        self.active_file = None
+        self.active_mode = None
+
+        # Run app.
+        self.after(DELAY, self.update_app)
         self.mainloop()
 
     def update_app(self):
         print(self.error)
+        print(self.active_mode)
+        print(self.active_file)
         self.after(DELAY, self.update_app)
 
     def configure_app(self):
@@ -114,11 +124,21 @@ class App(TkinterDnD.Tk):
             page.canvas_scroll.configure(
                 scrollregion=page.canvas_scroll.bbox('all'))
 
-    def create_navigation_handlers(self):
+    def create_button_handlers(self):
         self.frame_left.options_button.configure(
             command=self.options_button_handler)
         self.frame_left.logs_button.configure(
             command=self.logs_button_handler)
+
+        self.embed_page.embed_button.configure(
+            command=self.embed_button_handler)
+        self.embed_page.embed_mode_button.configure(
+            command=self.embed_mode_button_handler)
+        self.embed_page.select_pdf_button.configure(
+            command=self.select_pdf_button_handler)
+        self.embed_page.select_pdf_button.drop_target_register(DND_FILES)
+        self.embed_page.select_pdf_button.dnd_bind(
+            "<<Drop>>", self.select_pdf_button_handler)
 
         self.logs_page.back_button.configure(
             command=self.logs_back_button_handler)
@@ -141,6 +161,54 @@ class App(TkinterDnD.Tk):
         self.mode_edit_page.delete_button.configure(
             command=self.edit_mode_delete_button_handler)
 
+    def embed_mode_button_handler(self, event):
+        self.active_mode = event
+
+        if self.active_file is not None:
+            self.embed_page.embed_button.configure(state="normal")
+            self.embed_page.progresslabel.configure(
+                text="Click Embed to continue")
+        else:
+            self.embed_page.embed_button.configure(state="disabled")
+            self.embed_page.progresslabel.configure(
+                text="Select a file to start")
+
+    def select_pdf_button_handler(self, event=None):
+        print("select file")
+        if event:
+            file = event.data
+        else:
+            file = tk.filedialog.askopenfilename(
+                initialdir=self.options["input_dir"], title="Select a PDF", filetypes=[("PDF files", ".PDF .pdf")])
+        self.change_active_file(file)
+
+    def change_active_file(self, file):
+        # If no file selected.
+        if file == "":
+            return
+        # Removes curly brackets when filename contains spaces.
+        if file.startswith("{") and file.endswith("}"):
+            file = file[1:-1]
+        if file.endswith(".pdf"):
+            self.active_file = file
+            self.active_file_name = self.active_file.split("/")[-1]
+            self.embed_page.select_pdf_button.configure(
+                text=self.active_file_name)
+
+            if self.active_mode is not None:
+                self.embed_page.embed_button.configure(state="normal")
+                self.embed_page.progresslabel.configure(
+                    text="Click Embed to continue")
+            else:
+                self.embed_page.embed_button.configure(state="disabled")
+                self.embed_page.progresslabel.configure(
+                    text="Select a preset to continue")
+
+    def embed_button_handler(self):
+        print("embed button pressed")
+        print(self.active_file)
+        print(self.active_mode)
+
     def options_restore_presets_button_handler(self):
         Options.reset_settings_file("modes")
         Options.load_settings(self)
@@ -155,7 +223,7 @@ class App(TkinterDnD.Tk):
         Options.get_colors(self, theme=self.options["theme"])
         self.configure_app()
         self.create_pages()
-        self.create_navigation_handlers()
+        self.create_button_handlers()
 
         self.frame_left.options_button.configure(fg_color=self.LIGHT_BLUE)
         self.frame_left.options_button.configure(state="disabled")
@@ -200,6 +268,8 @@ class App(TkinterDnD.Tk):
             self.embed_page.embed_mode_button.configure(
                 values=list(self.settings["modes"].keys()))
             self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
+            self.active_mode = None
+            self.active_file = None
             self.embed_page.lift()
 
     def options_save_button_handler(self):
@@ -223,7 +293,7 @@ class App(TkinterDnD.Tk):
                 if prev_settings["options"]["theme"] != self.settings["options"]["theme"]:
                     Options.get_colors(self, theme=self.options["theme"])
                     self.create_pages()
-                    self.create_navigation_handlers()
+                    self.create_button_handlers()
                 self.configure_app()
                 self.frame_left.options_button.configure(fg_color=None)
                 self.frame_left.options_button.configure(state="normal")
@@ -235,6 +305,8 @@ class App(TkinterDnD.Tk):
                 # Navigate to embed page.
                 self.previous_page = self.current_page
                 self.current_page = "embed"
+                self.active_mode = None
+                self.active_file = None
                 self.embed_page.lift()
 
     def edit_mode_back_button_handler(self):
