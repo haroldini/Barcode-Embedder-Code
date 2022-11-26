@@ -203,3 +203,5 @@ poetry.toml
 .ionide
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,git,python
+
+.resources/settings.json
