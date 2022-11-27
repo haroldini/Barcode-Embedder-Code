@@ -47,34 +47,6 @@ class LeftFrame(Page):
             master=self, image=self.bg_image, bg=self.BG_COLOR)
         self.image_label.grid(row=2, column=0, pady=0, padx=20, sticky="n")
 
-        # Log button.
-        self.logs_button = ctk.CTkButton(master=self,
-                                         text="Logs",
-                                         border_width=2,
-                                         fg_color=None,
-                                         hover_color=self.LIGHT_BLUE,
-                                         text_color=self.DARK_GREY,
-                                         height=35,
-                                         width=150,
-                                         corner_radius=20,
-                                         text_font=(
-                                             "Roboto", -16))
-        self.logs_button.grid(row=5, column=0, pady=(20, 20), padx=20)
-
-        # Settings button.
-        self.options_button = ctk.CTkButton(master=self,
-                                            text="Options",
-                                            border_width=2,
-                                            fg_color=None,
-                                            hover_color=self.LIGHT_BLUE,
-                                            text_color=self.DARK_GREY,
-                                            height=35,
-                                            width=150,
-                                            corner_radius=20,
-                                            text_font=(
-                                                 "Roboto", -16))
-        self.options_button.grid(row=6, column=0, pady=(0, 20), padx=20)
-
         self.version_label = ctk.CTkLabel(master=self,
                                           text="1.1.0",
                                           text_color=self.DARK_GREY,

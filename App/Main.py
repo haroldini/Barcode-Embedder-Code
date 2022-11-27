@@ -36,16 +36,6 @@ logging.basicConfig(filename="App/resources/log.log",
 logging.getLogger('PIL').setLevel(logging.INFO)
 
 
-render_options = {
-    "format": "PNG",
-    "dpi": 300,
-    "module_height": 5,
-    "write_text": False,
-    "font_size": 5,
-    "text_distance": 1.5,
-}
-
-
 class App(TkinterDnD.Tk):
 
     def __init__(self, *args, **kwargs):
@@ -84,8 +74,6 @@ class App(TkinterDnD.Tk):
 
     def update_app(self):
         print(self.error)
-        print(self.active_mode)
-        print(self.active_file)
         self.after(DELAY, self.update_app)
 
     def configure_app(self):
@@ -127,9 +115,9 @@ class App(TkinterDnD.Tk):
                 scrollregion=page.canvas_scroll.bbox('all'))
 
     def create_button_handlers(self):
-        self.frame_left.options_button.configure(
+        self.embed_page.options_button.configure(
             command=self.options_button_handler)
-        self.frame_left.logs_button.configure(
+        self.embed_page.logs_button.configure(
             command=self.logs_button_handler)
 
         self.embed_page.embed_button.configure(
@@ -167,7 +155,6 @@ class App(TkinterDnD.Tk):
         self.set_active_mode(event)
 
     def select_pdf_button_handler(self, event=None):
-        print("select file")
         if event:
             file = event.data
         else:
@@ -189,17 +176,29 @@ class App(TkinterDnD.Tk):
 
     def embed_button_handler(self):
 
+        # Start
         # Disable all buttons
         self.embed_page.embed_button.configure(state="disabled")
         self.embed_page.select_pdf_button.configure(state="disabled")
         self.embed_page.embed_mode_button.configure(
             state="disabled", cursor="arrow",)
-        self.frame_left.options_button.configure(state="disabled")
-        self.frame_left.logs_button.configure(state="disabled")
+        self.embed_page.options_button.configure(state="disabled")
+        self.embed_page.logs_button.configure(state="disabled")
 
-        # Start embedding.
+        # Loop through
+        self.embed_page.progress_bar.grid()
         Embed(file=self.active_file,
               mode=self.active_mode).start()
+        # self.embed_page.progress_bar.grid_remove()
+
+        # Finish
+        # Enable all buttons
+        self.embed_page.embed_button.configure(state="normal")
+        self.embed_page.select_pdf_button.configure(state="normal")
+        self.embed_page.embed_mode_button.configure(
+            state="normal", cursor="hand2",)
+        self.embed_page.options_button.configure(state="normal")
+        self.embed_page.logs_button.configure(state="normal")
 
     def set_active_file(self, file):
         self.active_file = file
@@ -208,45 +207,52 @@ class App(TkinterDnD.Tk):
             text=self.active_file_name)
 
         if self.active_mode is not None:
-            self.embed_page.embed_button.configure(state="normal")
-            self.embed_page.progresslabel.configure(
+            self.embed_page.embed_button.configure(
+                state="normal", fg_color=self.LIGHT_BLUE)
+            self.embed_page.progress_label.configure(
                 text="Click Embed to continue.")
         else:
-            self.embed_page.embed_button.configure(state="disabled")
-            self.embed_page.progresslabel.configure(
+            self.embed_page.embed_button.configure(
+                state="disabled", fg_color=self.WHITE)
+            self.embed_page.progress_label.configure(
                 text="Select a preset to continue.")
 
     def remove_active_file(self):
         self.active_file = None
         self.active_file_name = None
+        self.embed_page.embed_button.configure(
+            state="disabled", fg_color=self.WHITE)
         self.embed_page.select_pdf_button.configure(
             text="Drag PDF here.\nOr click to select PDF.")
 
-        self.embed_page.embed_button.configure(state="disabled")
-        self.embed_page.progresslabel.configure(
+        self.embed_page.progress_label.configure(
             text="Select a file to start.")
 
     def set_active_mode(self, mode):
         self.active_mode = mode
         if self.active_file is not None:
-            self.embed_page.embed_button.configure(state="normal")
-            self.embed_page.progresslabel.configure(
+            self.embed_page.embed_button.configure(
+                state="normal", fg_color=self.LIGHT_BLUE)
+            self.embed_page.progress_label.configure(
                 text="Click Embed to continue.")
         else:
-            self.embed_page.embed_button.configure(state="disabled")
-            self.embed_page.progresslabel.configure(
+            self.embed_page.embed_button.configure(
+                state="disabled", fg_color=self.WHITE)
+            self.embed_page.progress_label.configure(
                 text="Select a file to start.")
 
     def remove_active_mode(self):
-        self.embed_page.embed_mode_button.text_label["text"] = "Select Document Preset"
+        self.embed_page.embed_mode_button.text_label["text"] = "Select PDF Preset"
         self.active_mode = None
         if self.active_file is not None:
-            self.embed_page.embed_button.configure(state="normal")
-            self.embed_page.progresslabel.configure(
+            self.embed_page.embed_button.configure(
+                state="disabled", fg_color=self.WHITE)
+            self.embed_page.progress_label.configure(
                 text="Select a preset to continue.")
         else:
-            self.embed_page.embed_button.configure(state="disabled")
-            self.embed_page.progresslabel.configure(
+            self.embed_page.embed_button.configure(
+                state="disabled", fg_color=self.WHITE)
+            self.embed_page.progress_label.configure(
                 text="Select a file to start.")
 
     def options_restore_presets_button_handler(self):
@@ -265,10 +271,6 @@ class App(TkinterDnD.Tk):
         self.create_pages()
         self.create_button_handlers()
 
-        self.frame_left.options_button.configure(fg_color=self.LIGHT_BLUE)
-        self.frame_left.options_button.configure(state="disabled")
-        self.frame_left.logs_button.configure(state="disabled")
-        self.frame_left.logs_button.configure(fg_color=None)
         self.options_page.lift()
 
     def options_button_handler(self):
@@ -278,33 +280,23 @@ class App(TkinterDnD.Tk):
             self.options_page.lift()
             self.previous_page = self.current_page
             self.current_page = "options"
-            self.frame_left.options_button.configure(fg_color=self.LIGHT_BLUE)
-            self.frame_left.options_button.configure(state="disabled")
-            self.frame_left.logs_button.configure(state="disabled")
-            self.frame_left.logs_button.configure(fg_color=None)
 
     def logs_button_handler(self):
         if self.current_page != "logs":
             self.logs_page.lift()
             self.previous_page = self.current_page
             self.current_page = "logs"
-            self.frame_left.logs_button.configure(fg_color=self.LIGHT_BLUE)
-            self.frame_left.options_button.configure(fg_color=None)
             return
 
         self.embed_page.lift()
         self.current_page = "embed"
         self.previous_page = "logs"
-        self.frame_left.logs_button.configure(fg_color=None)
 
     def options_back_button_handler(self):
         if self.current_page == "options":
             self.previous_page = self.current_page
             self.current_page = "embed"
             self.error = None
-            self.frame_left.options_button.configure(fg_color=None)
-            self.frame_left.options_button.configure(state="normal")
-            self.frame_left.logs_button.configure(state="normal")
 
             self.embed_page.embed_mode_button.configure(
                 values=list(self.settings["modes"].keys()))
@@ -336,11 +328,6 @@ class App(TkinterDnD.Tk):
                     self.create_pages()
                     self.create_button_handlers()
                 self.configure_app()
-
-                # Modify navigation buttons.
-                self.frame_left.options_button.configure(fg_color=None)
-                self.frame_left.options_button.configure(state="normal")
-                self.frame_left.logs_button.configure(state="normal")
 
                 # Reset active mode and file.
                 self.embed_page.embed_mode_button.configure(
@@ -406,7 +393,6 @@ class App(TkinterDnD.Tk):
         if self.current_page == "logs":
             self.previous_page = self.current_page
             self.current_page = "embed"
-            self.frame_left.logs_button.configure(fg_color=None)
             self.embed_page.lift()
 
     def reset_focus(self, event):
