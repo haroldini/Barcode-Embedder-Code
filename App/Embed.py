@@ -35,6 +35,7 @@ class Embed(threading.Thread):
     def __init__(self, file, mode):
         super(Embed, self).__init__()
         self.daemon = True
+        self._stop_event = threading.Event()
 
         Options.load_settings(self)
 
@@ -52,6 +53,12 @@ class Embed(threading.Thread):
         self.filename = self.file.split("/")[-1]
         self.mode = mode
         self.mode_settings = self.settings["modes"][f"{self.mode}"]
+
+    def stop(self):
+        self._stop_event.set()
+
+    def stopped(self):
+        return self._stop_event.is_set()
 
     def run(self):
         # Executes when embed button pressed.
@@ -77,7 +84,6 @@ class Embed(threading.Thread):
         except Exception and not Embed.error:
             Embed.error = "An unknown error occurred while embedding."
             self.end()
-        print(Embed.error)
 
     def end(self):
         Embed.complete = True

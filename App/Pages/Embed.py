@@ -81,8 +81,8 @@ class EmbedPage(Page):
 
         # Under frame
         # Log button.
-        self.logs_button = ctk.CTkButton(master=self,
-                                         text="Logs",
+        self.exit_button = ctk.CTkButton(master=self,
+                                         text="Exit",
                                          text_color=self.DARK_GREY,
                                          fg_color=self.LIGHT_BLUE,
                                          hover_color=self.DARK_BLUE,
@@ -90,7 +90,7 @@ class EmbedPage(Page):
                                          corner_radius=20,
                                          text_font=(
                                              "Roboto", -16))
-        self.logs_button.grid(row=2, column=1, pady=20, padx=20, sticky="nswe")
+        self.exit_button.grid(row=2, column=1, pady=20, padx=20, sticky="nswe")
 
         # Settings button.
         self.options_button = ctk.CTkButton(master=self,
