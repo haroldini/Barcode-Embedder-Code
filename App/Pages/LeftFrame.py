@@ -70,7 +70,7 @@ class LeftFrame(Page):
             row=0, column=0, pady=10, padx=10, sticky="nswe")
 
         self.version_label = ctk.CTkLabel(master=self,
-                                          text="1.1.0",
+                                          text="2.0.0",
                                           text_color=self.DARK_GREY,
                                           text_font=("Roboto Bold", -16))  # font name and size in px
         self.version_label.grid(
