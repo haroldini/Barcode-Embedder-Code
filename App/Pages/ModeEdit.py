@@ -8,6 +8,8 @@ class ModeEditPage(Page):
     def __init__(self, name="ModeEdit", *args, **kwargs):
         super().__init__(name="ModeEdit", *args, **kwargs)
         self.create_top_frame()
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(0, minsize=20)
         self.frame_top.grid_columnconfigure(0, minsize=80)
         self.frame_top.grid_columnconfigure((1, 2), weight=1)
         self.frame_top.grid_rowconfigure(

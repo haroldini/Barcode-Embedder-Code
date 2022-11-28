@@ -56,8 +56,9 @@ class Embed(threading.Thread):
     def run(self):
         # Executes when embed button pressed.
         try:
+            foldername = "Barcode Embedder Output"
             output_dir = self.options["output_dir"]
-            self.output_file = f"{output_dir}/{self.mode}/{self.filename}"
+            self.output_file = f"{output_dir}/{foldername}/{self.mode}/{self.filename}"
             with open(self.output_file, "wb") as output_file, open(self.file, "rb") as input_file:
                 cont = self.embed_PDF(input_file, output_file)
                 if cont == False:
@@ -69,13 +70,14 @@ class Embed(threading.Thread):
                     subprocess.call(
                         [f"{open_with}", f"{os.path.abspath(self.output_file)}"])
 
-            if Embed.IDs_found == 0:
+            if Embed.IDs_found == 0 and not Embed.error:
                 Embed.error = "No valid IDs found. Check your barcode type and input file."
             self.end()
         # Catches any uncaught errors.
-        except:
-            Embed.error = "An unknown error occurred. Check your preset and input file."
+        except Exception and not Embed.error:
+            Embed.error = "An unknown error occurred while embedding."
             self.end()
+        print(Embed.error)
 
     def end(self):
         Embed.complete = True

@@ -8,6 +8,8 @@ class LogsPage(Page):
         super().__init__(name="Log", *args, **kwargs)
         self.create_title("Log")
         self.create_top_frame()
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(0, minsize=20)
         self.create_scrollbar()
         self.create_widgets()
 

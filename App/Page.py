@@ -7,8 +7,6 @@ from Options import Options
 class Page(ctk.CTkFrame):
     def __init__(self, name="Page", *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.grid_rowconfigure(1, weight=1)
-        self.grid_rowconfigure(0, minsize=20)
         self.grid_columnconfigure((0, 1), weight=1)
         self.name = name
         Options.load_settings(self)

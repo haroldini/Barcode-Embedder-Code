@@ -11,6 +11,8 @@ class EmbedPage(Page):
         self.create_widgets()
         self.create_scrollbar()
         self.frame_top.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+        self.grid_rowconfigure(0, minsize=20)
         self.frame_top.grid_rowconfigure(0, minsize=120)
         self.frame_top.grid_rowconfigure((1, 2, 3), minsize=20)
         self.frame_top.grid_rowconfigure(4, minsize=40)

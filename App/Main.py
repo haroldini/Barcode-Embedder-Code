@@ -26,7 +26,7 @@ from Pages.Log import LogsPage
 from Pages.ModeEdit import ModeEditPage
 from Pages.LeftFrame import LeftFrame
 
-DELAY = 250
+DELAY = 100
 LOCK = threading.Lock()
 
 logging.basicConfig(filename="App/resources/log.log",
@@ -75,14 +75,19 @@ class App(TkinterDnD.Tk):
 
     def update_app(self):
 
-        # Check if error
-        if self.error is None:
-            self.frame_left.error_label.configure(text="")
-            self.frame_left.error_label.grid_remove()
-        else:
+        # Check if embed error.
+        print(Embed.error)
+        if Embed.error:
+            self.frame_left.error_label.configure(
+                text="--Error--\n\n"+Embed.error)
+            self.frame_left.error_frame.grid()
+        elif self.error:
             self.frame_left.error_label.configure(
                 text="-- Error --\n\n"+self.error)
-            self.frame_left.error_label.grid()
+            self.frame_left.error_frame.grid()
+        else:
+            self.frame_left.error_label.configure(text="")
+            self.frame_left.error_frame.grid_remove()
 
         # Check if started
         with LOCK:
@@ -98,7 +103,7 @@ class App(TkinterDnD.Tk):
                     self.embed_page.logs_button.configure(state="normal")
                     self.embed_page.progress_bar.grid_remove()
                     self.embed_page.progress_label.configure(
-                        text=f"{Embed.IDs_found} Barcodes Embedded to {self.active_file_name}.")
+                        text=f"{Embed.IDs_found} Barcodes Embedded to {self.active_file_name}")
                     self.embedder_running = False
 
                 # Check if running.
@@ -112,13 +117,7 @@ class App(TkinterDnD.Tk):
                             text=Embed.current_status)
                     else:
                         self.embed_page.progress_label.configure(
-                            text=f"Embedding {self.active_file_name}.")
-
-                    # Check if eror.
-                    if Embed.error:
-                        self.frame_left.error_label.configure(
-                            text="--Error--\n\n"+Embed.error
-                        )
+                            text=f"Embedding Barcodes to {self.active_file_name}")
 
         self.after(DELAY, self.update_app)
 
@@ -323,6 +322,7 @@ class App(TkinterDnD.Tk):
             self.previous_page = self.current_page
             self.current_page = "options"
             self.error = None
+            Embed.error = None
 
     def logs_button_handler(self):
         if self.current_page != "logs":
@@ -340,6 +340,7 @@ class App(TkinterDnD.Tk):
             self.previous_page = self.current_page
             self.current_page = "embed"
             self.error = None
+            Embed.error = None
 
             self.embed_page.embed_mode_button.configure(
                 values=list(self.settings["modes"].keys()))
