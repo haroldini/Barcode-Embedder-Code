@@ -76,7 +76,6 @@ class EmbedPage(Page):
                                sticky="nswe", padx=20, pady=20)
         self.progress_bar.set(0.0)
         self.progress_bar.grid_remove()
-        self.progress_bar.configure(progress_color=self.DARK_GREY)
 
         # Under frame
         # Log button.

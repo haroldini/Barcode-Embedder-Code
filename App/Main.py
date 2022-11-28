@@ -26,8 +26,8 @@ from Pages.Log import LogsPage
 from Pages.ModeEdit import ModeEditPage
 from Pages.LeftFrame import LeftFrame
 
-DELAY = 500
-run_flag_lock = threading.Lock()
+DELAY = 250
+LOCK = threading.Lock()
 
 logging.basicConfig(filename="App/resources/log.log",
                     encoding="utf-8",
@@ -42,7 +42,7 @@ class App(TkinterDnD.Tk):
         super().__init__(*args, **kwargs)
 
         # Load options.
-        Options.load_settings(self)
+        self.error = Options.load_settings(self)
         Options.get_colors(self, theme=self.options["theme"])
         self.iconbitmap("App/resources/icon.ico")
         self.title("Barcode Embedder")
@@ -56,7 +56,6 @@ class App(TkinterDnD.Tk):
         # Prep gui.
         self.current_page = "embed"
         self.previous_page = "embed"
-        self.error = None
 
         # Create gui
         self.create_pages()
@@ -67,13 +66,60 @@ class App(TkinterDnD.Tk):
         self.active_file = None
         self.active_file_name = None
         self.active_mode = None
+        with LOCK:
+            self.embedder_running = False
 
         # Run app.
         self.after(DELAY, self.update_app)
         self.mainloop()
 
     def update_app(self):
-        print(self.error)
+
+        # Check if error
+        if self.error is None:
+            self.frame_left.error_label.configure(text="")
+            self.frame_left.error_label.grid_remove()
+        else:
+            self.frame_left.error_label.configure(
+                text="-- Error --\n\n"+self.error)
+            self.frame_left.error_label.grid()
+
+        # Check if started
+        with LOCK:
+            if self.embedder_running:
+
+                # Check if complete.
+                if Embed.complete:
+                    self.embed_page.embed_button.configure(state="normal")
+                    self.embed_page.select_pdf_button.configure(state="normal")
+                    self.embed_page.embed_mode_button.configure(
+                        state="normal", cursor="hand2")
+                    self.embed_page.options_button.configure(state="normal")
+                    self.embed_page.logs_button.configure(state="normal")
+                    self.embed_page.progress_bar.grid_remove()
+                    self.embed_page.progress_label.configure(
+                        text=f"{Embed.IDs_found} Barcodes Embedded to {self.active_file_name}.")
+                    self.embedder_running = False
+
+                # Check if running.
+                else:
+                    self.embed_page.progress_bar.set(round(
+                        Embed.current_page/Embed.total_pages, 3))
+
+                    # Check if status.
+                    if Embed.current_status:
+                        self.embed_page.progress_label.configure(
+                            text=Embed.current_status)
+                    else:
+                        self.embed_page.progress_label.configure(
+                            text=f"Embedding {self.active_file_name}.")
+
+                    # Check if eror.
+                    if Embed.error:
+                        self.frame_left.error_label.configure(
+                            text="--Error--\n\n"+Embed.error
+                        )
+
         self.after(DELAY, self.update_app)
 
     def configure_app(self):
@@ -87,6 +133,7 @@ class App(TkinterDnD.Tk):
 
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
+
         self.options_page = OptionsPage(self)
         self.mode_edit_page = ModeEditPage(self)
         self.embed_page = EmbedPage(self)
@@ -115,11 +162,13 @@ class App(TkinterDnD.Tk):
                 scrollregion=page.canvas_scroll.bbox('all'))
 
     def create_button_handlers(self):
+        # Navigation buttons.
         self.embed_page.options_button.configure(
             command=self.options_button_handler)
         self.embed_page.logs_button.configure(
             command=self.logs_button_handler)
 
+        # Embed page.
         self.embed_page.embed_button.configure(
             command=self.embed_button_handler)
         self.embed_page.embed_mode_button.configure(
@@ -130,9 +179,11 @@ class App(TkinterDnD.Tk):
         self.embed_page.select_pdf_button.dnd_bind(
             "<<Drop>>", self.select_pdf_button_handler)
 
+        # Logs page.
         self.logs_page.back_button.configure(
             command=self.logs_back_button_handler)
 
+        # Options page.
         self.options_page.back_button.configure(
             command=self.options_back_button_handler)
         self.options_page.save_button.configure(
@@ -144,6 +195,7 @@ class App(TkinterDnD.Tk):
         self.options_page.restore_settings_button.configure(
             command=self.options_restore_settings_button_handler)
 
+        # Mode edit page.
         self.mode_edit_page.back_button.configure(
             command=self.edit_mode_back_button_handler)
         self.mode_edit_page.save_button.configure(
@@ -175,9 +227,10 @@ class App(TkinterDnD.Tk):
             self.error = "Selected file is invalid. Please select a PDF."
 
     def embed_button_handler(self):
-
         # Start
-        # Disable all buttons
+        # Prepare UI elements
+        self.embedder_running = True
+        self.embed_page.progress_bar.grid()
         self.embed_page.embed_button.configure(state="disabled")
         self.embed_page.select_pdf_button.configure(state="disabled")
         self.embed_page.embed_mode_button.configure(
@@ -186,19 +239,8 @@ class App(TkinterDnD.Tk):
         self.embed_page.logs_button.configure(state="disabled")
 
         # Loop through
-        self.embed_page.progress_bar.grid()
         Embed(file=self.active_file,
               mode=self.active_mode).start()
-        # self.embed_page.progress_bar.grid_remove()
-
-        # Finish
-        # Enable all buttons
-        self.embed_page.embed_button.configure(state="normal")
-        self.embed_page.select_pdf_button.configure(state="normal")
-        self.embed_page.embed_mode_button.configure(
-            state="normal", cursor="hand2",)
-        self.embed_page.options_button.configure(state="normal")
-        self.embed_page.logs_button.configure(state="normal")
 
     def set_active_file(self, file):
         self.active_file = file
@@ -280,6 +322,7 @@ class App(TkinterDnD.Tk):
             self.options_page.lift()
             self.previous_page = self.current_page
             self.current_page = "options"
+            self.error = None
 
     def logs_button_handler(self):
         if self.current_page != "logs":
@@ -352,7 +395,8 @@ class App(TkinterDnD.Tk):
             with open("App/resources/settings.json", "r") as settings_file:
                 settings = json.load(settings_file)
 
-            new_mode = Options.create_new_modes(self)
+            new_mode = Options.create_new_modes(
+                self, settings, self.mode_edit_page.mode)
             # Save new mode.
             if self.error is None:
                 new_mode_name, new_mode_options = new_mode
@@ -376,6 +420,7 @@ class App(TkinterDnD.Tk):
         self.options_page.edit_mode_field.configure(
             values=list(list(self.settings["modes"].keys())+["Add New"]))
         self.options_page.edit_mode_field.text_label["text"] = "Edit Document Preset"
+        self.error = None
         self.options_page.lift()
 
     def edit_mode_delete_button_handler(self):

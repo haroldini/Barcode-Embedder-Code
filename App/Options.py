@@ -10,6 +10,7 @@ class Options():
         self.load_settings()
         self.get_colors()
 
+    @staticmethod
     def get_colors(self, theme=0):
         ctk.set_default_color_theme("blue")
         if theme == 0:
@@ -20,6 +21,7 @@ class Options():
             self.DARK_BLUE = "#329dae"
             self.WHITE = "#e3e3e3"
             self.BG_COLOR = '#d1d5d8'
+            self.ERROR = "#d92d02"
         elif theme == 1:
             ctk.set_appearance_mode("Dark")
             self.DARK_GREY = "#e3e3e3"
@@ -28,24 +30,29 @@ class Options():
             self.DARK_BLUE = "#35c2d9"
             self.WHITE = "#40403f"
             self.BG_COLOR = '#2a2d2e'
+            self.ERROR = "#d92d02"
 
+    @staticmethod
     def load_settings(self):
+        error = None
 
         # Attempts: reset options, reset modes, reset all, final attempt
         for _ in range(2):
             try:
                 with open("App/resources/settings.json") as settings_file:
                     settings = json.load(settings_file)
-                Options.validate_settings_file(self, settings)
+                validate = Options.validate_settings_file(self, settings)
+                if not error:
+                    error = validate
                 break
 
             # If settings not found, write default settings file.
             except FileNotFoundError as e:
-                self.error = "Settings file not found. Default settings restored."
+                error = "Settings file not found. Default settings restored."
                 Options.reset_settings_file("both")
 
             except json.decoder.JSONDecodeError as e:
-                self.error = "Settings file invalid. Default settings restored."
+                error = "Settings file invalid. Default settings restored."
                 Options.reset_settings_file("both")
 
         # Create output folder for each embed mode.
@@ -54,6 +61,8 @@ class Options():
         os.makedirs(f"{output}/{foldername}", exist_ok=True)
         for embed_mode in [key for key in self.embed_modes.keys()]:
             os.makedirs(f"{output}/{foldername}/{embed_mode}", exist_ok=True)
+
+        return error
 
     @staticmethod
     def reset_settings_file(to_reset="both"):
@@ -72,6 +81,7 @@ class Options():
 
     @staticmethod
     def validate_settings_file(self, settings):
+        error = None
 
         settings_schema = {
             "modes": dict,
@@ -110,12 +120,18 @@ class Options():
 
         # Check length of modes > 0:
         if len(settings["modes"]) == 0:
-            self.error = "Settings file missing document types."
-            # Require user to add new document type.
+            error = "Settings file missing document presets. Default settings restored."
+            Options.reset_settings_file(to_reset="modes")
+            with open("App/resources/settings.json") as settings_file:
+                settings = json.load(settings_file)
+            validate = Options.validate_settings_file(self, settings)
+            if not error:
+                error = validate
 
         self.embed_modes = settings["modes"]
         self.options = settings["options"]
         self.settings = settings
+        return error
 
     @staticmethod
     def create_new_options(self, settings):
@@ -201,7 +217,7 @@ class Options():
                 self.error = "Window size settings must be between 100 and 2000, or 'None'."
 
     @staticmethod
-    def create_new_modes(self):
+    def create_new_modes(self, settings, mode):
         fields = ["ID_start", "ID_length",
                   "start_page", "skip_pages",
                   "barcode_type", "barcode_size_x", "barcode_size_y",
@@ -237,7 +253,22 @@ class Options():
             else:  # field = string
                 new_mode_options[field] = field_value
 
+        # Validate name.
         new_mode_name = self.mode_edit_page.name_field.get()
+        if len(new_mode_name) < 1 or len(new_mode_name) > 60:
+            self.error = "Preset name must be between 1 and 60 characters."
+            return
+
+        # Prevent duplicate presets
+        if mode == "Add New":
+            if new_mode_name in settings["modes"]:
+                self.error = "That preset name is already in use."
+                return
+        elif mode != new_mode_name:
+            if new_mode_name in settings["modes"]:
+                self.error = "That preset name is already in use."
+                return
+
         return new_mode_name, new_mode_options
 
     @staticmethod
@@ -256,12 +287,12 @@ class Options():
 
         # Valid barcode types.
         if field == "barcode_type":
-            valid_barcodes = ["Code39", "Code128", "PZN7",
+            valid_barcodes = ["Code39", "Code128", "PZN",
                               "EuropeanArticleNumber13", "EuropeanArticleNumber8",
                               "JapanArticleNumber", "InternationalStandardBookNumber13",
                               "InternationalStandardBookNumber10",
                               "InternationalStandardSerialNumber",
-                              "UniversalProductCode8", "EuropeanArticleNumber14",
+                              "UniversalProductCodeA", "EuropeanArticleNumber14",
                               "Gs1_128"]
             if field_value not in valid_barcodes:
                 self.error = f"{field_value} is not a valid barcode type."

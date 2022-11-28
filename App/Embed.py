@@ -5,6 +5,7 @@ import barcode
 
 from barcode.writer import ImageWriter
 from PyPDF2 import PdfFileReader, PdfFileWriter
+from PyPDF2.errors import PdfReadError
 from reportlab.pdfgen.canvas import Canvas
 from reportlab.lib.utils import ImageReader
 from io import BytesIO
@@ -23,6 +24,13 @@ render_options = {
 
 
 class Embed(threading.Thread):
+    complete = False
+    running = False
+    error = None
+    current_page = 0
+    total_pages = 1
+    current_status = None
+    IDs_found = 0
 
     def __init__(self, file, mode):
         super(Embed, self).__init__()
@@ -30,19 +38,29 @@ class Embed(threading.Thread):
 
         Options.load_settings(self)
 
+        # Reset class variables
+        Embed.complete = False
+        Embed.running = True
+        Embed.error = None
+        Embed.current_page = 0
+        Embed.total_pages = 1
+        Embed.current_status = None
+        Embed.IDs_found = 0
+
         # Save attributes
         self.file = file
         self.filename = self.file.split("/")[-1]
         self.mode = mode
         self.mode_settings = self.settings["modes"][f"{self.mode}"]
-        print(self.mode)
 
     def run(self):
         # Executes when embed button pressed.
         output_dir = self.options["output_dir"]
         self.output_file = f"{output_dir}/{self.mode}/{self.filename}"
         with open(self.output_file, "wb") as output_file, open(self.file, "rb") as input_file:
-            self.embed_PDF(input_file, output_file)
+            cont = self.embed_PDF(input_file, output_file)
+            if cont == False:
+                self.end()
 
             # Open PDF when completed.
             if self.options["open_when_done"]:
@@ -50,12 +68,27 @@ class Embed(threading.Thread):
                 subprocess.call(
                     [f"{open_with}", f"{os.path.abspath(self.output_file)}"])
 
+        if Embed.IDs_found == 0:
+            Embed.error = "No valid IDs found. Check your barcode type and input file."
+        self.end()
+
+    def end(self):
+        Embed.complete = True
+        Embed.running = False
+
     def embed_PDF(self, input_file, output_file):
-        input_PDF = PdfFileReader(input_file)
+        try:
+            input_PDF = PdfFileReader(input_file)
+        except PdfReadError:
+            Embed.error = "Failed to read PDF. File may be corrupted."
+            return False
+
         output_PDF = PdfFileWriter()
 
         # Loop through pages of inputPDF.
+        Embed.total_pages = len(input_PDF.pages)
         for i, page in enumerate(input_PDF.pages):
+            Embed.current_page = i
 
             # Skip page if settings dictate.
             if i+1 < self.mode_settings["start_page"] or i+1 in self.mode_settings["skip_pages"]:
@@ -65,7 +98,11 @@ class Embed(threading.Thread):
                 if not orderID:
                     pass  # no order id found
                 else:
-                    self.embed_barcode(orderID, page)
+                    try:
+                        self.embed_barcode(orderID, page)
+                        Embed.IDs_found += 1
+                    except:
+                        Embed.error = "One or more barcodes failed to embed. Check preset settings."
 
             # Add page to output.
             output_PDF.addPage(page)
@@ -87,13 +124,23 @@ class Embed(threading.Thread):
 
     def embed_barcode(self, orderID, page):
 
-        # Write Code39 object to memory. Read to image with reportlab ImageReader.
-        # Write empty Canvas object to memory. Overlay barcodeImg onto barcodeCanvas.
+        categories = {"codex": ["Code39", "Code128", "PZN", "Gs1_128"],
+                      "ean": ["EuropeanArticleNumber13", "EuropeanArticleNumber8",
+                              "JapanArticleNumber", "EuropeanArticleNumber14"],
+                      "isxn": ["InternationalStandardBookNumber10",
+                               "InternationalStandardSerialNumber", "InternationalStandardBookNumber13"],
+                      "upc": ["UniversalProductCodeA"]
+                      }
+
         image_writer = ImageWriter()
         c = BytesIO()
         with BytesIO() as b:
-            barcodeType = self.mode_settings["barcode_type"]
-            Barcode = getattr(barcode, barcodeType)
+            barcode_type = self.mode_settings["barcode_type"]
+            barcode_category = [
+                key for (key, val) in categories.items() if barcode_type in val][0]
+
+            mod = getattr(barcode, barcode_category)
+            Barcode = getattr(mod, barcode_type)
             Barcode(orderID, writer=image_writer).write(
                 b, render_options)
 

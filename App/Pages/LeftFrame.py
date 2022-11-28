@@ -47,6 +47,17 @@ class LeftFrame(Page):
             master=self, image=self.bg_image, bg=self.BG_COLOR)
         self.image_label.grid(row=2, column=0, pady=0, padx=20, sticky="n")
 
+        self.error_label = ctk.CTkLabel(master=self,
+                                        text="",
+                                        wraplength=185,
+                                        corner_radius=6,
+                                        fg_color=self.LIGHT_GREY,
+                                        text_color=self.ERROR,
+                                        text_font=("Roboto Bold", -16))  # font name and size in px
+        self.error_label.grid(
+            row=4, column=0, pady=20, padx=20, ipadx=10, ipady=10, sticky="n")
+        self.error_label.grid_remove()
+
         self.version_label = ctk.CTkLabel(master=self,
                                           text="1.1.0",
                                           text_color=self.DARK_GREY,
