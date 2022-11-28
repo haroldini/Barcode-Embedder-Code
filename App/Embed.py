@@ -55,22 +55,27 @@ class Embed(threading.Thread):
 
     def run(self):
         # Executes when embed button pressed.
-        output_dir = self.options["output_dir"]
-        self.output_file = f"{output_dir}/{self.mode}/{self.filename}"
-        with open(self.output_file, "wb") as output_file, open(self.file, "rb") as input_file:
-            cont = self.embed_PDF(input_file, output_file)
-            if cont == False:
-                self.end()
+        try:
+            output_dir = self.options["output_dir"]
+            self.output_file = f"{output_dir}/{self.mode}/{self.filename}"
+            with open(self.output_file, "wb") as output_file, open(self.file, "rb") as input_file:
+                cont = self.embed_PDF(input_file, output_file)
+                if cont == False:
+                    self.end()
 
-            # Open PDF when completed.
-            if self.options["open_when_done"]:
-                open_with = self.options["open_with"]
-                subprocess.call(
-                    [f"{open_with}", f"{os.path.abspath(self.output_file)}"])
+                # Open PDF when completed.
+                if self.options["open_when_done"]:
+                    open_with = self.options["open_with"]
+                    subprocess.call(
+                        [f"{open_with}", f"{os.path.abspath(self.output_file)}"])
 
-        if Embed.IDs_found == 0:
-            Embed.error = "No valid IDs found. Check your barcode type and input file."
-        self.end()
+            if Embed.IDs_found == 0:
+                Embed.error = "No valid IDs found. Check your barcode type and input file."
+            self.end()
+        # Catches any uncaught errors.
+        except:
+            Embed.error = "An unknown error occurred. Check your preset and input file."
+            self.end()
 
     def end(self):
         Embed.complete = True
