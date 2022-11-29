@@ -71,7 +71,7 @@ class ModeEditPage(Page):
                                  pady=4, padx=20, sticky="we")
 
         self.ID_length_label = ctk.CTkLabel(master=self.frame_top,
-                                            text="Exclude spaces in length. eg: 'AB - 123456' = 9",
+                                            text="ID Length",
                                             anchor="w",
                                             text_color=self.DARK_GREY,
                                             text_font=("Roboto", -16))
@@ -79,7 +79,7 @@ class ModeEditPage(Page):
             row=2, column=0, pady=(4, 18), padx=20, sticky="w")
 
         self.ID_length_field = ctk.CTkEntry(master=self.frame_top,
-                                            placeholder_text="Length of ID",
+                                            placeholder_text="Exclude spaces in length. eg: 'AB - 123456' -> '9'",
                                             fg_color=self.WHITE,
                                             height=35,
                                             border_width=0,
