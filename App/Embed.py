@@ -108,6 +108,7 @@ class Embed(threading.Thread):
                 pass
             else:
                 orderID = self.extract_order_ID(page)
+                print(orderID)
                 if not orderID:
                     pass  # no order id found
                 else:
@@ -125,15 +126,14 @@ class Embed(threading.Thread):
 
     def extract_order_ID(self, page):
         # Extract order ID from page's text.
-        pageText = page.extract_text()
-        start = self.mode_settings["ID_start"]
+        pageText = page.extract_text().replace(" ", "")
+        start = self.mode_settings["ID_start"].replace(" ", "")
         length = self.mode_settings["ID_length"]
-
         if start in pageText:
             orderID = (pageText.split(start)[1][:length])
             orderID = ''.join(orderID.splitlines())
             return orderID
-        return False
+        return None
 
     def embed_barcode(self, orderID, page):
 

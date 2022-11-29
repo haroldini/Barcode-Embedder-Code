@@ -60,7 +60,7 @@ class ModeEditPage(Page):
             row=1, column=0, pady=4, padx=20, sticky="w")
 
         self.ID_start_field = ctk.CTkEntry(master=self.frame_top,
-                                           placeholder_text="Precedes ID. eg: 'Order ID: '",
+                                           placeholder_text="Precedes ID, ignore spaces. eg: 'OrderID:'",
                                            fg_color=self.WHITE,
                                            height=35,
                                            border_width=0,
@@ -71,7 +71,7 @@ class ModeEditPage(Page):
                                  pady=4, padx=20, sticky="we")
 
         self.ID_length_label = ctk.CTkLabel(master=self.frame_top,
-                                            text="ID Length",
+                                            text="Exclude spaces in length. eg: 'AB - 123456' = 9",
                                             anchor="w",
                                             text_color=self.DARK_GREY,
                                             text_font=("Roboto", -16))

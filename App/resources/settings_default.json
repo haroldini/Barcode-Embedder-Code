@@ -1,7 +1,7 @@
 {   
     "modes": {
         "Ebay Invoice": {
-            "ID_start": "ORDER ID: ",
+            "ID_start": "ORDERID:",
             "ID_length": 14,
             "start_page": 1,
             "skip_pages": [],
@@ -13,7 +13,7 @@
             "barcode_location_y": 585
         },
         "Etsy Invoice": {
-            "ID_start": "Order #",
+            "ID_start": "Order#",
             "ID_length": 10,
             "start_page": 1,
             "skip_pages": [],
