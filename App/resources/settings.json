@@ -1,0 +1,40 @@
+{
+    "modes": {
+        "Ebay Invoice": {
+            "ID_start": "ORDERID:",
+            "ID_length": 14,
+            "start_page": 1,
+            "skip_pages": [],
+            "barcode_type": "Code128",
+            "barcode_size_x": 200,
+            "barcode_size_y": 60,
+            "barcode_location_x": 375,
+            "barcode_location_y": 585
+        },
+        "Etsy Invoice": {
+            "ID_start": "Order#",
+            "ID_length": 10,
+            "start_page": 1,
+            "skip_pages": [],
+            "barcode_type": "Code128",
+            "barcode_size_x": 200,
+            "barcode_size_y": 60,
+            "barcode_location_x": 375,
+            "barcode_location_y": 585
+        }
+    },
+    "options": {
+        "input_dir": ".\\",
+        "output_dir": ".\\output",
+        "open_when_done": 1,
+        "notify_when_done": 1,
+        "open_with": "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
+        "theme": 1,
+        "def_win_size_x": 860,
+        "def_win_size_y": 520,
+        "min_win_size_x": null,
+        "min_win_size_y": null,
+        "max_win_size_x": null,
+        "max_win_size_y": null
+    }
+}

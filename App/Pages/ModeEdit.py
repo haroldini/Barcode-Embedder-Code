@@ -270,6 +270,7 @@ class ModeEditPage(Page):
                     0, ctk.END)
         else:
             mode = self.settings["modes"][self.mode]
+
             self.name_field.delete(0, ctk.END)
             self.name_field.insert(0, self.mode)
             self.delete_button.grid()
@@ -277,6 +278,14 @@ class ModeEditPage(Page):
             for field in fields:
                 self.__getattribute__(f"{field}_field").delete(
                     0, ctk.END)
-                if mode[field] != []:
+
+                # Fills list field with comma separated string.
+                if type(mode[field]) == list:
+                    if mode[field] != []:
+                        skipped_pages_str = ", ".join(
+                            [str(i) for i in mode[field]])
+                        self.__getattribute__(f"{field}_field").insert(
+                            0, skipped_pages_str)
+                else:
                     self.__getattribute__(f"{field}_field").insert(
                         0, mode[field])

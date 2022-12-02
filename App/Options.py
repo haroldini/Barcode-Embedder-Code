@@ -240,7 +240,12 @@ class Options():
         for field in fields:
             field_value = self.mode_edit_page.__getattribute__(
                 f"{field}_field").get()
+
             Options.validate_new_mode_field(self, field, field_value)
+            print("x", self.error)
+            if self.error:
+                return
+
             if field in numeric_fields:
                 new_mode_options[field] = int(field_value)
             elif field == "skip_pages":
