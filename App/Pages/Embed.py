@@ -82,6 +82,7 @@ class EmbedPage(Page):
         # Under frame
         # Log button.
         self.exit_button = ctk.CTkButton(master=self,
+                                         cursor="hand2",
                                          text="Exit",
                                          text_color=self.DARK_GREY,
                                          fg_color=self.LIGHT_BLUE,
@@ -94,6 +95,7 @@ class EmbedPage(Page):
 
         # Settings button.
         self.options_button = ctk.CTkButton(master=self,
+                                            cursor="hand2",
                                             text="Options",
                                             text_color=self.DARK_GREY,
                                             fg_color=self.LIGHT_BLUE,

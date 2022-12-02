@@ -108,7 +108,6 @@ class Embed(threading.Thread):
                 pass
             else:
                 orderID = self.extract_order_ID(page)
-                print(orderID)
                 if not orderID:
                     pass  # no order id found
                 else:
